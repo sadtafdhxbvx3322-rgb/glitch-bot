@@ -9,7 +9,8 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 from groq import Groq
 import yt_dlp
-from instagrapi.exceptions import ChallengeRequired, BadPassword, PleaseWaitException
+# Only import what works: PleaseWaitException removed
+from instagrapi.exceptions import ChallengeRequired, BadPassword 
 
 # === 0. DEBUGGER (CONFIRMATION) ===
 print("🔍 SYSTEM DIAGNOSTICS: Bot is launching...")
@@ -61,7 +62,8 @@ def login_instagram():
         ig_client.login(IG_USER, IG_PASS)
         print("✅ Logged in via Session String! (Safe Mode)")
         return
-    except (ChallengeRequired, BadPassword, PleaseWaitException) as e:
+    # ONLY catching Challenge and BadPassword now
+    except (ChallengeRequired, BadPassword) as e: 
         print(f"⚠️ Session Login Failed: {e}. Trying Password Fallback...")
     except Exception as e:
         print(f"⚠️ Generic Session Error: {e}. Trying Password Fallback...")
@@ -70,9 +72,10 @@ def login_instagram():
     try:
         ig_client.login(IG_USER, IG_PASS)
         print("✅ Logged in via Password")
+        return
     except ChallengeRequired as e:
         print("\n❌ CRITICAL ERROR: CHALLENGE REQUIRED")
-        print("ACTION: Approve the login on your phone. Then redeploy.")
+        print("ACTION: Approve the login on your phone (Yes, it was me). Then redeploy.")
         os._exit(1) # Stop and wait for user action
     except BadPassword:
         print("❌ CRITICAL ERROR: BAD PASSWORD.")
@@ -82,11 +85,10 @@ def login_instagram():
         print(f"❌ FINAL LOGIN FAILURE: {e2}")
         os._exit(1)
 
-# === 3. FEATURES (Code from previous prompt) ===
+# === 3. FEATURES (Helper Functions) ===
 
-# --- Copy/Paste the rest of the functions here ---
 def download_song(query):
-    # ... (rest of the download_song function)
+    """Downloads song via yt-dlp and converts to m4a"""
     print(f"🎵 Searching: {query}")
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -100,7 +102,7 @@ def download_song(query):
     return filename
 
 def get_ai_reply(text):
-    # ... (rest of the get_ai_reply function)
+    """Chat with AI"""
     if not groq: return "My brain is disconnected rn 💀"
     try:
         resp = groq.chat.completions.create(
@@ -115,7 +117,7 @@ def get_ai_reply(text):
         return "Brain not working rn 💀"
 
 async def get_truecaller_data(number):
-    # ... (rest of the get_truecaller_data function)
+    """Ask Telegram Bot for Info"""
     if not tg_client: return "Telegram Bridge is Down ❌"
     async with tg_client:
         print(f"🕵️‍♂️ Asking Truecaller bot about: {number}")
@@ -123,7 +125,6 @@ async def get_truecaller_data(number):
         await asyncio.sleep(5)
         msgs = await tg_client.get_messages(TRUECALLER_BOT_USER, limit=1)
         return msgs[0].text
-# -----------------------------------------------
 
 # === 4. MAIN LOOP ===
 def start_bot():
