@@ -10,27 +10,48 @@ from telethon.sessions import StringSession
 from groq import Groq
 import yt_dlp
 
-# === 1. LOAD SECRETS FROM RAILWAY ===
-TG_APP_ID = int(os.environ["TG_APP_ID"])
-TG_APP_HASH = os.environ["TG_APP_HASH"]
-TG_SESSION = os.environ["TG_SESSION_STR"]
-IG_USER = os.environ["IG_USER"]
-IG_PASS = os.environ["IG_PASS"]
-IG_SESSION = os.environ["IG_SESSION_STR"]
-# Agar Groq key nahi hai to niche wali line delete kar dena
-GROQ_KEY = os.environ.get("GROQ_API_KEY", "none") 
+# === 0. DEBUGGER (TELLS US WHAT RAILWAY SEES) ===
+print("🔍 SYSTEM DIAGNOSTICS:")
+print(f"✅ Variables Found: {list(os.environ.keys())}")
+print("-" * 30)
 
-# Target Bot (Jisse number nikalna hai)
-TRUECALLER_BOT_USER = "@TrueCaller_Bot" 
+# === 1. CONFIGURATION ===
+
+# --- HARDCODED CREDENTIALS (To fix the crash) ---
+TG_APP_ID = 31908861
+TG_APP_HASH = "db7b4118965e302e60cf66cc89570166"
+TRUECALLER_BOT_USER = "@TrueCaller_Bot"
+
+# --- LOAD SECRETS FROM RAILWAY ---
+# We use .get() now so it doesn't crash immediately if missing
+TG_SESSION = os.environ.get("TG_SESSION_STR")
+IG_USER = os.environ.get("IG_USER")
+IG_PASS = os.environ.get("IG_PASS")
+IG_SESSION = os.environ.get("IG_SESSION_STR")
+GROQ_KEY = os.environ.get("GROQ_API_KEY")
+
+# Check if crucial variables are missing
+if not TG_SESSION:
+    print("❌ CRITICAL ERROR: 'TG_SESSION_STR' is missing in Railway Variables!")
+if not IG_SESSION:
+    print("❌ CRITICAL ERROR: 'IG_SESSION_STR' is missing in Railway Variables!")
 
 # === 2. SETUP CLIENTS ===
+
 # Setup AI
 groq = None
-if GROQ_KEY != "none":
+if GROQ_KEY:
     groq = Groq(api_key=GROQ_KEY)
+else:
+    print("⚠️ Groq Key missing. AI features disabled.")
 
 # Setup Telegram (Async)
-tg_client = TelegramClient(StringSession(TG_SESSION), TG_APP_ID, TG_APP_HASH)
+# We wrap this in try/except to prevent crash on startup
+try:
+    tg_client = TelegramClient(StringSession(TG_SESSION), TG_APP_ID, TG_APP_HASH)
+except Exception as e:
+    print(f"❌ Telegram Client Error: {e}")
+    tg_client = None
 
 # Setup Instagram (Sync)
 ig_client = Client()
@@ -38,6 +59,10 @@ ig_client = Client()
 def login_instagram():
     """Login using the SAVED SESSION to avoid Ban"""
     print("🟠 Logging into Instagram...")
+    if not IG_SESSION:
+        print("❌ Cannot login: IG_SESSION_STR is missing.")
+        return
+
     try:
         # Load the JSON string you generated
         settings = json.loads(IG_SESSION)
@@ -47,7 +72,11 @@ def login_instagram():
     except Exception as e:
         print(f"⚠️ Session Login Failed: {e}")
         print("Trying raw password login...")
-        ig_client.login(IG_USER, IG_PASS)
+        try:
+            ig_client.login(IG_USER, IG_PASS)
+            print("✅ Logged in via Password")
+        except Exception as e2:
+            print(f"❌ Password Login also failed: {e2}")
 
 # === 3. FEATURES ===
 
@@ -67,7 +96,7 @@ def download_song(query):
 
 def get_ai_reply(text):
     """Chat with AI"""
-    if not groq: return "AI disabled. Add API Key."
+    if not groq: return "My brain is disconnected rn 💀"
     try:
         resp = groq.chat.completions.create(
             messages=[
@@ -82,6 +111,8 @@ def get_ai_reply(text):
 
 async def get_truecaller_data(number):
     """Ask Telegram Bot for Info"""
+    if not tg_client: return "Telegram Bridge is Down ❌"
+    
     async with tg_client:
         print(f"🕵️‍♂️ Asking Truecaller bot about: {number}")
         await tg_client.send_message(TRUECALLER_BOT_USER, number)
@@ -96,7 +127,7 @@ def start_bot():
     if not os.path.exists("downloads"):
         os.makedirs("downloads")
 
-    print("🚀 BOT IS ONLINE AND READY!")
+    print("🚀 BOT IS STARTING LOOP...")
     
     while True:
         try:
@@ -106,7 +137,6 @@ def start_bot():
             for thread in threads:
                 msg = thread.messages[0]
                 text = msg.text
-                user_pk = thread.users[0].pk
                 
                 # Skip own messages
                 if str(msg.user_id) == str(ig_client.user_id):
@@ -125,6 +155,7 @@ def start_bot():
                         ig_client.direct_send_voice(thread.id, path)
                         os.remove(path) # Delete file after sending
                     except Exception as e:
+                        print(f"Song Error: {e}")
                         ig_client.direct_send("Song nahi mila bro ❌", thread_ids=[thread.id])
 
                 # B. TRUECALLER (10 Digits)
