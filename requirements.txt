@@ -1,0 +1,7 @@
+instagrapi
+telethon
+groq
+yt-dlp
+ffmpeg-python
+python-dotenv
+asyncio
