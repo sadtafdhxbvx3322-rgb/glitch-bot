@@ -1,7 +1,5 @@
+pyrogram
+tgcrypto
 instagrapi
-telethon
-groq
-yt-dlp
-ffmpeg-python
-python-dotenv
-asyncio
+flask
+gunicorn
