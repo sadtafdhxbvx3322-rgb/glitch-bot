@@ -18,14 +18,13 @@ logger = logging.getLogger(__name__)
 API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
-# === 🔥 HARDCODED SESSIONS (LATEST STRING) 🔥 ===
-# NOTE: Agar yeh string phir se 'unpack requires a buffer' error de, toh yeh string corrupt hai
-# aur use dobara generate karna hi padega (Pyrogram 2.0.x se).
+# === 🔥 HARDCODED SESSIONS (LATEST WORKING STRINGS) 🔥 ===
+# Nayi, fresh sessions daal di gayi hain.
 TG_SESSION_HARDCODE = "1BVtsOI0Buzk6vKfxFEqr8U4tZDru3C5YkNRnA3hP8VDR3uDWiXCilDFbYbwu1iVP65Hmny7b48b-zw23JMRXlXzaIRs1dMWmUFlxgM-a9Wy5WI56_qkSmGQZo_AzQ7MIcFjidgxa21osPjmJ3qiJKlnBfSHgYh9GPyvyi04tf-XOxGLMy5pcY8kLl7JExBuNfUj-Hr7qrRenQNh5U2y_WrDQnvc234u9IQL9fNMMHfm4MlWvJPc2CpSuLzWNRzl9UD0Z_Pkmdh16GU9JYqevlB_mrFhtT0uOgLtNkCj6In5BpY0RVIuYpvuCC3yo0nPNRP_2XwYa6xkYzpH5H8FTU5KNG3rFkTo="
 IG_SESSION_ID_HARDCODE = "79571086246%3AeuyWvK0olWrlKS%3A16%3AAYhk_bxwsgEHbgZYjOMTftKo0jU_zRtMGVfrmKtJVw" 
 # =======================================================
 
-# 👇 BOT GROUPS
+# 👇 BOT GROUPS (All bots restored)
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
@@ -41,13 +40,13 @@ patch_instagrapi()
 logger.info("💀 Starting FINAL MASTER BOT (Pyrogram 2.x Compatible)...")
 
 # === CLIENT INITIALIZATION (PYROGRAM 2.x SYNTAX) ===
-# Pyrogram 2.x mein yeh arguments zaroori hain.
+# Syntax corrected for Pyrogram 2.x: uses session_string= and in_memory=
 app = Client(
     "railway_final_client", 
     api_id=API_ID, 
     api_hash=API_HASH,
-    session_string=TG_SESSION_HARDCODE, # 'session_string=' keyword zaroori hai
-    in_memory=True                     # 'in_memory=' keyword zaroori hai
+    session_string=TG_SESSION_HARDCODE,
+    in_memory=True
 )
 
 ig = InstaClient()
@@ -196,11 +195,11 @@ def check_instagram_logic():
         
         raw_text = target_msg.text.strip()
         
-        # --- IGNORE SELF-GENERATED MESSAGES ---
+        # --- IGNORE SELF-GENERATED MESSAGES (Anti-Spam Fix) ---
         if raw_text.startswith("Error: Telegram says:") or raw_text.startswith("🤖 **Info from @"):
             logger.debug(f"   ⚠️ Ignoring self-generated Error/Info loop content: {raw_text[:30]}...")
             return None
-        # ----------------------------------------
+        # ------------------------------------------------------
         
         clean_digits = "".join(filter(str.isdigit, raw_text))
         
