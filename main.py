@@ -1,32 +1,29 @@
 import os
 import asyncio
 import random
-import logging # Logging module import kiya gaya
+import logging
 from pyrogram import Client
-from pyrogram.errors import SessionPasswordNeeded, AuthKeyInvalid, AuthKeyUnregistered # Specific errors import kiye
+from pyrogram.errors import AuthKeyInvalid, AuthKeyUnregistered
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
-# === LOGGING SETUP (DEBUG MODE) ===
-logging.basicConfig(level=logging.DEBUG, 
+# === LOGGING SETUP ===
+logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%H:%M:%S')
 logger = logging.getLogger(__name__)
 # ===================================
 
-# === CONFIGURATION ===
+# === CONFIGURATION (UPDATED) ===
 API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
-PHONE_NUMBER = "+919493235589" 
 
-# === 🔥 HARDCODED SESSIONS 🔥 ===
-# Yahan tumhara NAYA SESSION STRING aana chahiye. 
-# Agar tumne abhi tak generate nahi kiya hai, toh "LOGIN_REQUIRED" rehne do.
-TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAYzADXvqbkwLtWGNGwg5BUZx7O7bilrZkvvXd-5ldp-HQntVaHF0-bVUSHeUKArMHeR4gSZaa8ljlF82oScCqABEH1ZstuL8UQbqOtI1sWoy8-JbRJK03y8DOquPqjDyJsjMRU1LKTwPwpWKTrweSGeOdASEjPQihMFIDJokr1giSHmRhKkYMz99cRfz-AjbHymGZiS5gl5q6Pdl0oB0yIHMci35E0rmFxYYD53Z-u5STM9oIFWEFs35BVMXSoMGNv5NkNQOS1W2GlTBMmdf-XijvWLioDHKjKn2jRthA=" 
-IG_SESSION_ID_HARDCODE = "75136570684%3AQkrd3jy9XrfXy0%3A20%3AAYgHk9d733Lcx0m_TaA9HEhqPiPxUH0imhfO09TlUA" 
-# =================================
+# === 🔥 HARDCODED SESSIONS (LATEST WORKING STRING) 🔥 ===
+TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAYzADXvqbkwLtWGNGwg5BUZx7O7bilrZkvvXd-5ldp-HQntVaHF0-bVUSHeUKArMHeR4gSZaa8ljlF82oScCqABEH1ZstuL8UQbqOtI1sWoy8-JbRJK03y8DOquPqjDyJsjMRU1LKTwPwpWKTrweSGeOdASEjPQihMFIDJokr1giSHmRhKkYMz99cRfz-AjbHymGZiS5gl5q6Pdl0oB0yIHMci35E0rmFxYYD53Z-u5STM9oIFWEFs35BVMXSoMGNv5NkNQOS1W2GlTBMmdf-XijvWLioDHKjKn2jRthA="
+IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
+# =======================================================
 
-# 👇 BOT GROUPS
+# 👇 BOT GROUPS (All bots restored)
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
@@ -34,31 +31,41 @@ BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 def patch_instagrapi():
     try:
         from instagrapi.types import User
+        # Older Pyrogram version ke liye Instagrapi ka ye fix necessary ho sakta hai
         User.model_config['extra'] = 'ignore' 
     except Exception:
         pass
 patch_instagrapi()
 
-logger.info("💀 Starting FINAL MASTER BOT (DEBUG MODE)...")
+logger.info("💀 Starting FINAL MASTER BOT (Ultimate Stability)...")
 
 # === CLIENT INITIALIZATION ===
 app = Client(
-    "railway_debug_client", 
+    "railway_final_client", 
     api_id=API_ID, 
     api_hash=API_HASH, 
-    session_string=TG_SESSION_HARDCODE if TG_SESSION_HARDCODE != "LOGIN_REQUIRED" else None,
-    phone_number=PHONE_NUMBER if TG_SESSION_HARDCODE == "LOGIN_REQUIRED" else None,
+    session_string=TG_SESSION_HARDCODE,
     in_memory=True
 )
 
 ig = InstaClient()
 # Device Masking
-# ... (Device Masking code remains same) ...
+ig.set_device({
+    "app_version": "269.0.0.18.75",
+    "android_version": 29,
+    "android_release": "10.0",
+    "dpi": "480dpi",
+    "resolution": "1080x2340",
+    "manufacturer": "Samsung",
+    "device": "SM-S918B",
+    "model": "Galaxy S23 Ultra",
+    "cpu": "exynos990",
+    "version_code": "314665256"
+})
 
 PROCESSED_IDS = set()
 
 # === HELPER 1: INFO BOT (ULTIMATE SPAM FIX V3) ===
-# (Function logic remains same)
 async def get_info_from_bot(app_client, target_bot, query):
     logger.debug(f"   ✈️ [{target_bot}] Sending Query: {query}")
     clean_query_number = "".join(filter(str.isdigit, query))[-10:]
@@ -108,7 +115,6 @@ async def get_info_from_bot(app_client, target_bot, query):
         return f"Error: {e}"
 
 # === HELPER 2: ACTION BOT (3 Bots Working Logic) ===
-# (Function logic remains same, print changed to logger.debug)
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     logger.debug(f"   💣 Triggering Action on {target_bot}...")
     try:
@@ -162,7 +168,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         return False
 
 # === INSTAGRAM LOGIC ===
-# (Function logic remains same)
 def check_instagram_logic():
     logger.debug("⏳ Waiting for messages on IG...")
     try:
@@ -225,7 +230,7 @@ def check_instagram_logic():
         logger.error(f"⚠️ Error in IG check: {e}")
         return None
 
-# === MAIN BOT LOOP (Modified Login Logic) ===
+# === MAIN BOT LOOP ===
 async def main():
     if not IG_SESSION_ID_HARDCODE:
         logger.error("❌ Instagram Session Hardcode Missing!")
@@ -240,43 +245,22 @@ async def main():
         logger.critical(f"❌ Instagram Fail: {e}")
         return
 
-    # 2. Telegram Login (Special Handling)
+    # 2. Telegram Login 
     logger.info("🔵 Logging in Telegram...")
     try:
-        if TG_SESSION_HARDCODE == "LOGIN_REQUIRED":
-            
-            logger.warning(f"⚠️ **INTERACTIVE LOGIN START** (Phone: {PHONE_NUMBER}). Check logs for code prompt.")
-            await app.start()
-            
-            new_session_string = await app.export_session_string()
-            await app.stop() 
-            
-            logger.critical("\n" + "="*80)
-            logger.critical("✅ NEW SESSION STRING GENERATED! YAHI HAI TUMHARA SOLUTION:")
-            logger.critical(new_session_string)
-            logger.critical("================================================================================")
-            logger.critical("⚠️ **ACTION REQUIRED:** Is string ko 'TG_SESSION_HARDCODE' variable mein paste karke dobara deploy karo.")
-            logger.critical("================================================================================")
-            return 
-        
-        else:
-            await app.start()
-            logger.info("✅ Telegram Login Success!")
+        await app.start()
+        logger.info("✅ Telegram Login Success!")
     
-    except SessionPasswordNeeded:
-        logger.critical("❌ Telegram Login Failed: 2FA Password Required. Please check your Telegram settings.")
-        return
     except AuthKeyInvalid:
-        logger.critical("❌ Telegram Login Failed: AUTH_KEY_INVALID (Session Expired/Wrong API Hash). Generate a new session.")
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_INVALID (Session Expired).")
         return
     except AuthKeyUnregistered:
-        logger.critical("❌ Telegram Login Failed: AUTH_KEY_UNREGISTERED (Session Deleted). Generate a new session.")
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_UNREGISTERED (Session Deleted).")
         return
     except Exception as e:
         logger.critical(f"❌ Telegram Login Fail: Unhandled Error: {e}")
         return
     
-    # ... (Rest of the main loop) ...
     try:
         threads = ig.direct_threads(amount=3)
         if threads:
