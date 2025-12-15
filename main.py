@@ -9,9 +9,8 @@ from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
-# === 🔥 HARDCODED SESSIONS (APNA NAYA TG SESSION YAHAN PASTE KAREIN) 🔥 ===
-# NOTE: Yeh sirf ek placeholder hai. Isse apne NAYE, FRESH SESSION STRING se replace karein.
-TG_SESSION_HARDCODE = "BQHm4_0ACxFQJ5gZrORQeIHFlKD8ADU03b8fMzx1bza1XgmlcGfkRlWvifZlkqCnOSE_xFmlEvef0mIcbLHGKWTbJdbbfDcCINakBDj33rUh8zXT5-cVat4L3Ahx-ov-hzOiVdOaph0mEJJMqMVU3tLPN93LjenxgtJ0pr_iSL9uTHXABlGj3b8CkzOil0kXCbHv2aACDR1mHk8PXIz-qb5ZwKZIfnoutbG-3uTN9opL8nhynwifCIBacgOk57KWkf5qa_xgU6DLvew6evnY3pnHjbM33xRjXgQh-SB12Z-M9pBr5Oyr-7yeM12nwd4bRAPiPH330jw71buXZPvEoqNuSqpA2wAAAAHylqcSAA" 
+# === 🔥 HARDCODED SESSIONS (LATEST UPDATE) 🔥 ===
+TG_SESSION_HARDCODE = "BQHm4_0ACxFQJ5gZrORQeIHFlKD8ADU03b8fMzx1bza1XgmlcGfkRlWvifZlkqCnOSE_xFmlEvef0mIcbLHGKWTbJdbbfDcCINakBDj33rUh8zXT5-cVat4L3Ahx-ov-hzOiVdOaph0mEJJMqMVU3tLPN93LjenxgtJ0pr_iSL9uTHXABlGj3b8CkzOil0kXCbHv2aACDR1mHk8PXIz-qb5ZwKZIfnoutbG-3uTN9opL8nhynwifCIBacgOk57KWkf5qa_xgU6DLvew6evnY3pnHjbM33xRjXgQh-SB12Z-M9pBr5Oyr-7yeM12nwd4bRAPiPH330jw71buXZPvEoqNuSqpA2wAAAAHylqcSAA"
 IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
 # =======================================================
 
@@ -23,16 +22,14 @@ BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        # Instagrapi's internal Pydantic model fix
         User.model_config['extra'] = 'ignore' 
     except Exception:
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL MASTER BOT (New Project Ready)...")
+print("💀 Starting FINAL MASTER BOT (Ultimate Fixes)...")
 
 # === CLIENT INITIALIZATION ===
-# Pyrogram client definition (Naya session use karega)
 app = Client(
     "railway_new_client", 
     api_id=API_ID, 
@@ -58,40 +55,47 @@ ig.set_device({
 
 PROCESSED_IDS = set()
 
-# === HELPER 1: INFO BOT (ULTIMATE SPAM FIX LOGIC) ===
+# === HELPER 1: INFO BOT (ULTIMATE SPAM FIX V3) ===
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
+    # Number ko 10-digit format mein clean karte hain, comparison ke liye
+    clean_query_number = "".join(filter(str.isdigit, query))[-10:]
+    
     try:
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
         print(f"   ⏳ [{target_bot}] Waiting for reply (Sent ID: {sent_msg.id})...")
         
-        # Target Bot ka ID nikalte hain
         try:
             target_user = await app_client.get_users(target_bot)
             target_id = target_user.id
         except Exception:
             target_id = None 
 
-        for i in range(10): 
+        for i in range(10): # 10 seconds tak wait
             await asyncio.sleep(1) 
-            async for message in app_client.get_chat_history(target_bot, limit=3): 
+            
+            # CRITICAL: Sirf last message check karo to prevent spam loop
+            async for message in app_client.get_chat_history(target_bot, limit=1): 
                 
-                # Critical Check: Spamming rokne ke liye
                 is_new_message = (message.id > sent_msg.id)
                 is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
                 is_not_self_message = (message.from_user.id != app_client.me.id)
+                
+                # --- 🔥 CRITICAL CHECK: Content Validation (Number Match) 🔥 ---
+                is_content_relevant = False
+                if message.text:
+                    if clean_query_number in message.text.replace(' ', '').replace('+', ''):
+                         is_content_relevant = True
+                    elif target_bot == "@CYBERINFOXXXBOT" and "📞Telephone:" in message.text:
+                         is_content_relevant = True
 
-                if is_new_message and is_not_self_message and (target_id is None or is_from_target_bot):
+                # Final Filter: Agar sab conditions match ho toh hi reply uthao
+                if is_new_message and is_not_self_message and (target_id is None or is_from_target_bot) and is_content_relevant:
                     
-                    print(f"   ✅ [{target_bot}] Reply received (Reply ID: {message.id}).")
+                    print(f"   ✅ [{target_bot}] Reply received & Content Matched.")
                     raw_text = message.text or "📷 File Received"
                     
-                    # Double-check: Agar reply mein khud ka output format hai, toh ignore
-                    if raw_text.startswith("🤖 **Cyber Info:**") or raw_text.startswith("🕵️ **TrueCaller:**"):
-                        print(f"   ⚠️ [{target_bot}] Ignoring potential self-generated loop content.")
-                        continue
-
                     if target_bot == "@CYBERINFOXXXBOT":
                         marker = "📞Telephone:"
                         if marker in raw_text:
@@ -104,35 +108,38 @@ async def get_info_from_bot(app_client, target_bot, query):
         print(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
-# === HELPER 2: ACTION BOT (3 Bots Working Logic) ===
+# === HELPER 2: ACTION BOT (TUMHARI EXACT PROCESS IMPLEMENTED) ===
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
     try:
         # Step 1: Send /start
         sent_start = await app_client.send_message(target_bot, "/start")
-        print(f"      Sent /start. Waiting for menu...")
-        await asyncio.sleep(3) 
+        print(f"      Sent /start. Waiting 5s for menu...")
+        await asyncio.sleep(5) # User requested 5 seconds wait
         
         # Step 2: Click Button 'Start Bombing' or '💣B'
         button_clicked = False
         async for message in app_client.get_chat_history(target_bot, limit=1):
             if message.id > sent_start.id and message.reply_markup:
                 
+                # Check for Keyboard Buttons
                 if hasattr(message.reply_markup, 'keyboard'):
                     for row in message.reply_markup.keyboard:
                         for btn in row:
-                            if "Start Bombing" in btn or btn.startswith("💣B") or btn.startswith("💣 B"):
-                                print(f"      🔘 Clicking Button: {btn}")
+                            if "Start Bombing" in btn or "Start bombing" in btn or btn.startswith("💣B") or btn.startswith("💣 B"):
+                                print(f"      🔘 Clicking Keyboard Button: {btn}")
                                 await app_client.send_message(target_bot, btn)
                                 button_clicked = True
                                 break
                         if button_clicked: break
                 
+                # Check for Inline Buttons
                 if not button_clicked and hasattr(message.reply_markup, 'inline_keyboard'):
                     for row in message.reply_markup.inline_keyboard:
                         for btn in row:
-                            if "Start Bombing" in btn.text or btn.text.startswith("💣B") or btn.text.startswith("💣 B"):
-                                print(f"      🔘 Clicking Inline: {btn.text}")
+                            btn_text_lower = btn.text.lower()
+                            if "start bombing" in btn_text_lower or btn_text_lower.startswith("💣b") or btn_text_lower.startswith("💣 b"):
+                                print(f"      🔘 Clicking Inline Button: {btn.text}")
                                 await app_client.request_callback_answer(
                                     chat_id=message.chat.id,
                                     message_id=message.id,
@@ -143,14 +150,14 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                         if button_clicked: break
         
         if not button_clicked:
-            print("      ❌ Action Button ('Start Bombing' or '💣B') nahi mila.")
+            print("      ❌ Action Button ('Start Bombing' or '💣B') nahi mila. Skipping Number Send.")
             return False
 
         # Step 3: Send Number
-        await asyncio.sleep(2)
+        await asyncio.sleep(2) # Wait 2 seconds after button click
         print(f"      🚀 Sending Target Number: {phone_10_digit}")
         await app_client.send_message(target_bot, phone_10_digit)
-        await asyncio.sleep(3) 
+        await asyncio.sleep(3) # Wait 3 seconds after sending number
         
         print("      ✅ Action Triggered and Number Sent.")
         return True
@@ -167,7 +174,6 @@ def check_instagram_logic():
         if not threads: return None
         thread = threads[0]
         
-        # Ignore if last message was sent by the bot itself
         if thread.messages[0].user_id == ig.user_id: 
             print("   ✋ Last message Bot ka tha. Ignoring.")
             return None
@@ -222,9 +228,6 @@ def check_instagram_logic():
 async def main():
     if not IG_SESSION_ID_HARDCODE:
         print("❌ Instagram Session Hardcode Missing!")
-        return
-    if TG_SESSION_HARDCODE == "APNA_EKDUM_NAYA_AUR_FRESH_TG_SESSION_STRING_YAHAN_PASTE_KAREN":
-        print("❌ TG Session Placeholder use ho raha hai. Please update with a fresh session!")
         return
 
     # 1. Instagram Login
