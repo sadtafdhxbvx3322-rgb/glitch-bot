@@ -18,13 +18,14 @@ IG_SESSION_ID_HARDCODE = "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"]
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
-# === INITIALIZATION (SYNTAX FIXED) ===
+# main.py file mein
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        User.model_config['extra'] = 'ignore' # <- Yahan se extra ']' hata diya gaya hai
+        User.model_config['extra'] = 'ignore' # <--- Yahan koi extra ']' nahi hona chahiye
     except Exception:
         pass
+        
 patch_instagrapi()
 
 print("💀 Starting FINAL MASTER BOT (Syntax Fixed)...")
