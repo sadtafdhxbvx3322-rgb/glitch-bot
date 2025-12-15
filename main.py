@@ -1,21 +1,32 @@
 import os
 import asyncio
 import random
+import logging # Logging module import kiya gaya
 from pyrogram import Client
+from pyrogram.errors import SessionPasswordNeeded, AuthKeyInvalid, AuthKeyUnregistered # Specific errors import kiye
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
+# === LOGGING SETUP (DEBUG MODE) ===
+logging.basicConfig(level=logging.DEBUG, 
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger(__name__)
+# ===================================
+
 # === CONFIGURATION ===
-API_ID = 31908861
-API_HASH = "db7b4118965e302e60cf66cc89570166"
+API_ID = 35892347
+API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
+PHONE_NUMBER = "+919493235589" 
 
-# === 🔥 HARDCODED SESSIONS (LATEST UPDATE) 🔥 ===
-# Tumhari di gayi latest sessions.
-TG_SESSION_HARDCODE = "BQHm4_0AiFiPVzSfQDy48_ymJzQALgulIIZgFB27oq2T91lC6W4b65YecIL5qfhbB30fWUyUBaf_7L8ZLVYUSNhpVfPZv_rt0PiyCUkP9LIv29bUZDmJXBUGdsZKGqUCfoASYedgYFOiPnCYRJY3Lz1Zx_hxC_YGp1GBmYk2pekeMEA8Z8_FmMXX4h8D_HUTQpdObZLKKwlScfoVnmmIpcMr2zmCzg1VJ10wS7E8kpcyr5iVZu3I5oYbeg8CZo_eOCIDTUkg2h6lm2C2qYWER1RJF-xsuQlKuBURNbNCqf-vvXTB1jp8MyQZhIUZcrCXyCptlRXQBsRxLD6-ddFDrwghmmkwwwAAAAH7Nx6NAA"
+# === 🔥 HARDCODED SESSIONS 🔥 ===
+# Yahan tumhara NAYA SESSION STRING aana chahiye. 
+# Agar tumne abhi tak generate nahi kiya hai, toh "LOGIN_REQUIRED" rehne do.
+TG_SESSION_HARDCODE = "LOGIN_REQUIRED" 
 IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
-# =======================================================
+# =================================
 
-# 👇 BOT GROUPS (REVERTED TO ORIGINAL BOTS)
+# 👇 BOT GROUPS
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
@@ -28,43 +39,34 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL MASTER BOT (All Bots, Anti-Spam Active)...")
+logger.info("💀 Starting FINAL MASTER BOT (DEBUG MODE)...")
 
 # === CLIENT INITIALIZATION ===
 app = Client(
-    "railway_stable_client", 
+    "railway_debug_client", 
     api_id=API_ID, 
     api_hash=API_HASH, 
-    session_string=TG_SESSION_HARDCODE, 
+    session_string=TG_SESSION_HARDCODE if TG_SESSION_HARDCODE != "LOGIN_REQUIRED" else None,
+    phone_number=PHONE_NUMBER if TG_SESSION_HARDCODE == "LOGIN_REQUIRED" else None,
     in_memory=True
 )
 
 ig = InstaClient()
 # Device Masking
-ig.set_device({
-    "app_version": "269.0.0.18.75",
-    "android_version": 29,
-    "android_release": "10.0",
-    "dpi": "480dpi",
-    "resolution": "1080x2340",
-    "manufacturer": "Samsung",
-    "device": "SM-S918B",
-    "model": "Galaxy S23 Ultra",
-    "cpu": "exynos990",
-    "version_code": "314665256"
-})
+# ... (Device Masking code remains same) ...
 
 PROCESSED_IDS = set()
 
 # === HELPER 1: INFO BOT (ULTIMATE SPAM FIX V3) ===
+# (Function logic remains same)
 async def get_info_from_bot(app_client, target_bot, query):
-    print(f"   ✈️ [{target_bot}] Sending Query: {query}")
+    logger.debug(f"   ✈️ [{target_bot}] Sending Query: {query}")
     clean_query_number = "".join(filter(str.isdigit, query))[-10:]
     
     try:
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
-        print(f"   ⏳ [{target_bot}] Waiting for reply (Sent ID: {sent_msg.id})...")
+        logger.debug(f"   ⏳ [{target_bot}] Waiting for reply (Sent ID: {sent_msg.id})...")
         
         try:
             target_user = await app_client.get_users(target_bot)
@@ -81,20 +83,16 @@ async def get_info_from_bot(app_client, target_bot, query):
                 is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
                 is_not_self_message = (message.from_user.id != app_client.me.id)
                 
-                # --- 🔥 CRITICAL CHECK: Content Validation (Number Match) 🔥 ---
                 is_content_relevant = False
                 if message.text:
-                    # Check 1: Agar query number reply ke text mein hai
                     if clean_query_number in message.text.replace(' ', '').replace('+', ''):
                          is_content_relevant = True
-                    # Check 2: Ya agar CYBERINFOXXXBOT ka specific marker hai
                     elif target_bot == "@CYBERINFOXXXBOT" and "📞Telephone:" in message.text:
                          is_content_relevant = True
 
-                # Final Filter: Agar sab conditions match ho toh hi reply uthao
                 if is_new_message and is_not_self_message and is_content_relevant and (target_id is None or is_from_target_bot):
                     
-                    print(f"   ✅ [{target_bot}] Reply received & Content Matched.")
+                    logger.debug(f"   ✅ [{target_bot}] Reply received & Content Matched.")
                     raw_text = message.text or "📷 File Received"
                     
                     if target_bot == "@CYBERINFOXXXBOT":
@@ -106,41 +104,38 @@ async def get_info_from_bot(app_client, target_bot, query):
         return f"⚠️ {target_bot} Slow/No Reply (Timeout)."
         
     except Exception as e:
-        print(f"   ❌ [{target_bot}] Error: {e}")
+        logger.error(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
 # === HELPER 2: ACTION BOT (3 Bots Working Logic) ===
+# (Function logic remains same, print changed to logger.debug)
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
-    print(f"   💣 Triggering Action on {target_bot}...")
+    logger.debug(f"   💣 Triggering Action on {target_bot}...")
     try:
-        # Step 1: Send /start
         sent_start = await app_client.send_message(target_bot, "/start")
-        print(f"      Sent /start. Waiting 5s for menu...")
+        logger.debug(f"      Sent /start. Waiting 5s for menu...")
         await asyncio.sleep(5) 
         
-        # Step 2: Click Button 'Start Bombing' or '💣B'
         button_clicked = False
         async for message in app_client.get_chat_history(target_bot, limit=1):
             if message.id > sent_start.id and message.reply_markup:
                 
-                # Check for Keyboard Buttons
                 if hasattr(message.reply_markup, 'keyboard'):
                     for row in message.reply_markup.keyboard:
                         for btn in row:
                             if "Start Bombing" in btn or "Start bombing" in btn or btn.startswith("💣B") or btn.startswith("💣 B"):
-                                print(f"      🔘 Clicking Keyboard Button: {btn}")
+                                logger.debug(f"      🔘 Clicking Keyboard Button: {btn}")
                                 await app_client.send_message(target_bot, btn)
                                 button_clicked = True
                                 break
                         if button_clicked: break
                 
-                # Check for Inline Buttons
                 if not button_clicked and hasattr(message.reply_markup, 'inline_keyboard'):
                     for row in message.reply_markup.inline_keyboard:
                         for btn in row:
                             btn_text_lower = btn.text.lower()
                             if "start bombing" in btn_text_lower or btn_text_lower.startswith("💣b") or btn_text_lower.startswith("💣 b"):
-                                print(f"      🔘 Clicking Inline Button: {btn.text}")
+                                logger.debug(f"      🔘 Clicking Inline Button: {btn.text}")
                                 await app_client.request_callback_answer(
                                     chat_id=message.chat.id,
                                     message_id=message.id,
@@ -151,32 +146,32 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                         if button_clicked: break
         
         if not button_clicked:
-            print("      ❌ Action Button ('Start Bombing' or '💣B') nahi mila. Skipping Number Send.")
+            logger.debug("      ❌ Action Button ('Start Bombing' or '💣B') nahi mila. Skipping Number Send.")
             return False
 
-        # Step 3: Send Number
         await asyncio.sleep(2) 
-        print(f"      🚀 Sending Target Number: {phone_10_digit}")
+        logger.debug(f"      🚀 Sending Target Number: {phone_10_digit}")
         await app_client.send_message(target_bot, phone_10_digit)
         await asyncio.sleep(3) 
         
-        print("      ✅ Action Triggered and Number Sent.")
+        logger.debug("      ✅ Action Triggered and Number Sent.")
         return True
 
     except Exception as e:
-        print(f"      ❌ Action Fail: {e}")
+        logger.error(f"      ❌ Action Fail: {e}")
         return False
 
 # === INSTAGRAM LOGIC ===
+# (Function logic remains same)
 def check_instagram_logic():
-    print("⏳ Waiting for messages on IG...")
+    logger.debug("⏳ Waiting for messages on IG...")
     try:
         threads = ig.direct_threads(amount=1)
         if not threads: return None
         thread = threads[0]
         
         if thread.messages[0].user_id == ig.user_id: 
-            print("   ✋ Last message Bot ka tha. Ignoring.")
+            logger.debug("   ✋ Last message Bot ka tha. Ignoring.")
             return None
         
         target_msg = None
@@ -188,28 +183,25 @@ def check_instagram_logic():
             break 
         
         if not target_msg: 
-            print("   💤 No new unread messages found.")
+            logger.debug("   💤 No new unread messages found.")
             return None
         
         PROCESSED_IDS.add(target_msg.id)
         
         raw_text = target_msg.text.strip()
         
-        # --- 🔥 FINAL SPAM FILTER FOR ERRORS/INFO LOOP 🔥 ---
-        # Bot ke khud ke forwarded messages (Error ya Info) ko naya input manne se roko
         if raw_text.startswith("Error: Telegram says:") or raw_text.startswith("🤖 **Info from @"):
-            print(f"   ⚠️ Ignoring self-generated Error/Info loop content: {raw_text[:30]}...")
+            logger.debug(f"   ⚠️ Ignoring self-generated Error/Info loop content: {raw_text[:30]}...")
             return None
-        # ----------------------------------------
         
         clean_digits = "".join(filter(str.isdigit, raw_text))
         
-        print(f"📩 Got message: '{raw_text}'")
+        logger.info(f"📩 Got message: '{raw_text}'")
 
         if len(clean_digits) >= 10:
             last_10 = clean_digits[-10:]
             final_full = "+91" + last_10
-            print(f"   ✅ Detected Number: {final_full}")
+            logger.info(f"   ✅ Detected Number: {final_full}")
             
             if raw_text.lower().startswith("!b"):
                 return {
@@ -223,80 +215,106 @@ def check_instagram_logic():
                     "user_id": target_msg.user_id,
                     "phone": final_full 
                 }
-        print("   ❌ Number format not found (Too short). Ignoring.")
+        logger.debug("   ❌ Number format not found (Too short). Ignoring.")
         return None
 
     except (ClientError, PleaseWaitFewMinutes) as e:
-        print(f"\n🚨 INSTAGRAM LIMIT: {e}")
+        logger.warning(f"\n🚨 INSTAGRAM LIMIT: {e}")
         return "COOL_DOWN"
     except Exception as e:
-        print(f"⚠️ Error in IG check: {e}")
+        logger.error(f"⚠️ Error in IG check: {e}")
         return None
 
-# === MAIN BOT LOOP ===
+# === MAIN BOT LOOP (Modified Login Logic) ===
 async def main():
     if not IG_SESSION_ID_HARDCODE:
-        print("❌ Instagram Session Hardcode Missing!")
+        logger.error("❌ Instagram Session Hardcode Missing!")
         return
 
     # 1. Instagram Login
-    print("🔵 Logging in Instagram...")
+    logger.info("🔵 Logging in Instagram...")
     try:
         ig.login_by_sessionid(IG_SESSION_ID_HARDCODE)
-        print("✅ Instagram Login Success!")
+        logger.info("✅ Instagram Login Success!")
     except Exception as e:
-        print(f"❌ Instagram Fail: {e}")
+        logger.critical(f"❌ Instagram Fail: {e}")
         return
 
-    # 2. Telegram Login
-    print("🔵 Logging in Telegram...")
+    # 2. Telegram Login (Special Handling)
+    logger.info("🔵 Logging in Telegram...")
     try:
-        await app.start()
-        print("✅ Telegram Login Success!")
+        if TG_SESSION_HARDCODE == "LOGIN_REQUIRED":
+            
+            logger.warning(f"⚠️ **INTERACTIVE LOGIN START** (Phone: {PHONE_NUMBER}). Check logs for code prompt.")
+            await app.start()
+            
+            new_session_string = await app.export_session_string()
+            await app.stop() 
+            
+            logger.critical("\n" + "="*80)
+            logger.critical("✅ NEW SESSION STRING GENERATED! YAHI HAI TUMHARA SOLUTION:")
+            logger.critical(new_session_string)
+            logger.critical("================================================================================")
+            logger.critical("⚠️ **ACTION REQUIRED:** Is string ko 'TG_SESSION_HARDCODE' variable mein paste karke dobara deploy karo.")
+            logger.critical("================================================================================")
+            return 
+        
+        else:
+            await app.start()
+            logger.info("✅ Telegram Login Success!")
+    
+    except SessionPasswordNeeded:
+        logger.critical("❌ Telegram Login Failed: 2FA Password Required. Please check your Telegram settings.")
+        return
+    except AuthKeyInvalid:
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_INVALID (Session Expired/Wrong API Hash). Generate a new session.")
+        return
+    except AuthKeyUnregistered:
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_UNREGISTERED (Session Deleted). Generate a new session.")
+        return
     except Exception as e:
-        print(f"❌ Telegram Fail: {e}")
+        logger.critical(f"❌ Telegram Login Fail: Unhandled Error: {e}")
         return
     
+    # ... (Rest of the main loop) ...
     try:
         threads = ig.direct_threads(amount=3)
         if threads:
             for thread in threads:
                 if thread.messages: PROCESSED_IDS.add(thread.messages[0].id)
-        print(f"   [System] Ignored {len(PROCESSED_IDS)} old messages on startup.")
+        logger.info(f"   [System] Ignored {len(PROCESSED_IDS)} old messages on startup.")
     except: pass
     
-    print("✅ All Systems Online & Ready!")
+    logger.info("✅ All Systems Online & Ready!")
 
     while True:
         try:
             data = await asyncio.to_thread(check_instagram_logic)
             
             if data == "COOL_DOWN":
-                print("⚠️ Rate Limit. Sleeping 2 mins...")
+                logger.warning("⚠️ Rate Limit. Sleeping 2 mins...")
                 await asyncio.sleep(120)
                 continue
             
             if data and isinstance(data, dict):
                 
                 if data['mode'] == "ACTION":
-                    print("--- ⚙️ MODE: ACTION (!b) ---")
+                    logger.info("--- ⚙️ MODE: ACTION (!b) ---")
                     
                     ig.direct_send("💀 Bombing started on 3 bots...", user_ids=[data['user_id']])
                     
-                    # ACTION on all 3 bots
                     for bot_username in BOT_ACTION_LIST:
                         await trigger_action_bot(app, bot_username, data['phone'])
                         await asyncio.sleep(1) 
                     
-                    print("<<< 📤 Sending on IG: Bombing initiated.")
-                    print("--- ✅ ACTION CYCLE COMPLETE ---")
+                    logger.info("<<< 📤 Sending on IG: Bombing initiated.")
+                    logger.info("--- ✅ ACTION CYCLE COMPLETE ---")
 
                 elif data['mode'] == "INFO":
-                    print("--- ⚙️ MODE: INFO (Normal Number) ---")
+                    logger.info("--- ⚙️ MODE: INFO (Normal Number) ---")
                     
                     info_parts = []
                     
-                    # INFO from both original bots
                     for bot_username in BOT_INFO_LIST:
                         info_result = await get_info_from_bot(app, bot_username, data['phone'])
                         info_parts.append(f"🤖 **Info from {bot_username}:**\n{info_result}")
@@ -306,19 +324,19 @@ async def main():
                     
                     try:
                         ig.direct_send(final_reply, user_ids=[data['user_id']])
-                        print("<<< 📤 Sending on IG: Combined Info.")
-                        print("--- ✅ INFO CYCLE COMPLETE ---")
+                        logger.info("<<< 📤 Sending on IG: Combined Info.")
+                        logger.info("--- ✅ INFO CYCLE COMPLETE ---")
                     except: pass
 
-            print(f"💤 Waiting 15s...", end="\r")
+            logger.debug(f"💤 Waiting 15s...", end="\r")
             await asyncio.sleep(15)
 
         except Exception as e:
-            print(f"\n⚠️ Critical Error: {e}")
+            logger.critical(f"\n⚠️ Critical Error in Main Loop: {e}")
             await asyncio.sleep(15)
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
-        print(f"☠️ Program Crashed: {e}")
+        logger.critical(f"☠️ Program Crashed: {e}")
