@@ -2,3 +2,4 @@ pyrogram==2.0.100
 tgcrypto
 instagrapi==1.17.6
 python-dotenv
+Pillow
