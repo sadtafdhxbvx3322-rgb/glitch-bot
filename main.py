@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 # ===================================
 
-# === CONFIGURATION (UPDATED) ===
+# === CONFIGURATION ===
 API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
@@ -23,28 +23,27 @@ TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAY
 IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
 # =======================================================
 
-# 👇 BOT GROUPS (All bots restored)
+# 👇 BOT GROUPS
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
-# === INITIALIZATION (Syntax Fixed) ===
+# === INITIALIZATION (Pyrogram 1.x Syntax Fix) ===
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        # Older Pyrogram version ke liye Instagrapi ka ye fix necessary ho sakta hai
         User.model_config['extra'] = 'ignore' 
     except Exception:
         pass
 patch_instagrapi()
 
-logger.info("💀 Starting FINAL MASTER BOT (Ultimate Stability)...")
+logger.info("💀 Starting FINAL MASTER BOT (Pyrogram 1.x Compatible)...")
 
-# === CLIENT INITIALIZATION ===
+# === CLIENT INITIALIZATION (CRITICAL SYNTAX FIX) ===
+# Pyrogram 1.x mein 'session_string' keyword nahi hota. Session string ko pehla argument banate hain.
 app = Client(
-    "railway_final_client", 
+    TG_SESSION_HARDCODE,  # Session string ko pehla argument banaya
     api_id=API_ID, 
     api_hash=API_HASH, 
-    session_string=TG_SESSION_HARDCODE,
     in_memory=True
 )
 
@@ -71,6 +70,7 @@ async def get_info_from_bot(app_client, target_bot, query):
     clean_query_number = "".join(filter(str.isdigit, query))[-10:]
     
     try:
+        # Use app_client.send_message
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
         logger.debug(f"   ⏳ [{target_bot}] Waiting for reply (Sent ID: {sent_msg.id})...")
@@ -84,6 +84,7 @@ async def get_info_from_bot(app_client, target_bot, query):
         for i in range(10): 
             await asyncio.sleep(1) 
             
+            # Use app_client.get_chat_history
             async for message in app_client.get_chat_history(target_bot, limit=1): 
                 
                 is_new_message = (message.id > sent_msg.id)
@@ -142,6 +143,7 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                             btn_text_lower = btn.text.lower()
                             if "start bombing" in btn_text_lower or btn_text_lower.startswith("💣b") or btn_text_lower.startswith("💣 b"):
                                 logger.debug(f"      🔘 Clicking Inline Button: {btn.text}")
+                                # In Pyrogram 1.x, request_callback_answer might need careful handling, but this syntax is correct for both.
                                 await app_client.request_callback_answer(
                                     chat_id=message.chat.id,
                                     message_id=message.id,
@@ -167,7 +169,7 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         logger.error(f"      ❌ Action Fail: {e}")
         return False
 
-# === INSTAGRAM LOGIC ===
+# === INSTAGRAM LOGIC (Anti-Spam Filter Active) ===
 def check_instagram_logic():
     logger.debug("⏳ Waiting for messages on IG...")
     try:
@@ -195,9 +197,11 @@ def check_instagram_logic():
         
         raw_text = target_msg.text.strip()
         
+        # --- IGNORE SELF-GENERATED MESSAGES ---
         if raw_text.startswith("Error: Telegram says:") or raw_text.startswith("🤖 **Info from @"):
             logger.debug(f"   ⚠️ Ignoring self-generated Error/Info loop content: {raw_text[:30]}...")
             return None
+        # ----------------------------------------
         
         clean_digits = "".join(filter(str.isdigit, raw_text))
         
