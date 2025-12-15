@@ -6,27 +6,35 @@ from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
 # === CONFIGURATION ===
-API_ID = 31908861
-API_HASH = "db7b4118965e302e60cf66cc89570166"
+# Best practice: Use environment variables, with hardcodes as fallback.
+API_ID = os.getenv("API_ID", 31908861)
+API_HASH = os.getenv("API_HASH", "db7b4118965e302e60cf66cc89570166")
 
 # === 🔥 HARDCODED SESSIONS (LATEST UPDATE) 🔥 ===
-TG_SESSION_HARDCODE = "BQHm4_0Ae0v9hu6NEuivgwAZMUYbaoawmR0NMy8pieT5kJrrv1aNN6uS603F4Fbp8IhWMUS7KkQzUE9xNHZRh_V9mBV2hqVOLdZ6yH3mvxMhlKNFXz7pypiop0hvIl9WAVb314FOm42TEmOONArXm8678PRpHTT5rErg8Br1mlKhv9E9DnMEnvnvUbtUx7JEnPF3NRAJ49aDip_LQ_2eCfU_Maba617c1pC2x_tgCRwhPjV-uKE_pdrV4ieF5rpFx95oA2LHA_pIuVke8gZ7wFACFN_gW3PXyWnCP9uXJ8EtyOgApr1PFQJUZyeAR4N-1rbvxtKHystUQneIapWGmQH6RoadjwAAAAHylqcSAA"
-IG_SESSION_ID_HARDCODE = "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R6v89yWhTFOZvaDtGbdCunwMw" 
+TG_SESSION_HARDCODE = os.getenv("TG_SESSION_STRING", "BQHm4_0Ae0v9hu6NEuivgwAZMUYbaoawmR0NMy8pieT5kJrrv1aNN6uS603F4Fbp8IhWMUS7KkQzUE9xNHZRh_V9mBV2hqVOLdZ6yH3mvxMhlKNFXz7pypiop0hvIl9WAVb314FOm42TEmOONArXm8678PRPHTT5rErg8Br1mlKhv9E9DnMEnvnvUbtUx7JEnPF3NRAJ49aDip_LQ_2eCfU_Maba617c1pC2x_tgCRwhPjV-uKE_pdrV4ieF5rpFx95oA2LHA_pIuVke8gZ7wFACFN_gW3PXyWnCP9uXJ8EtyOgApr1PFQJUZyeAR4N-1rbvxtKHystUQneIapWGmQH6RoadjwAAAAHylqcSAA")
+# Check environment variable INSTA_SESSION_ID first
+IG_SESSION_ID_HARDCODE = os.getenv("INSTA_SESSION_ID", "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R6v89yWhTFOZvaDtGbdCunwMw") 
 # =======================================================
 
 # 👇 BOT GROUPS
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"]
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
-# main.py file mein
+# FIX: This function applies a patch required by newer instagrapi
+# versions due to changes in Instagram's API response structure,
+# which often causes the "'data'" error.
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        User.model_config['extra'] = 'ignore' # <--- Yahan koi extra ']' nahi hona chahiye
-    except Exception:
+        # Important fix: Allows extra fields in the JSON response
+        # that the library's User model might not be expecting.
+        User.model_config['extra'] = 'ignore' 
+        print("   [System] instagrapi User model patched successfully.")
+    except Exception as e:
+        print(f"   [System] Warning: Could not patch instagrapi User model. Error: {e}")
         pass
         
-patch_instagrapi()
+patch_instagrapi() # Call the patch function at startup
 
 print("💀 Starting FINAL MASTER BOT (Syntax Fixed)...")
 
@@ -73,19 +81,23 @@ async def get_info_from_bot(app_client, target_bot, query):
         for i in range(8): 
             await asyncio.sleep(1) 
             async for message in app_client.get_chat_history(target_bot, limit=1):
-                is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
-                is_not_self_message = (message.from_user.id != app_client.me.id)
+                # Ensure we only process messages from the target bot AND newer than our sent message
+                is_from_target_bot = (target_id is not None and message.from_user and message.from_user.id == target_id)
+                # is_not_self_message = (message.from_user and message.from_user.id != app_client.me.id) # This check is redundant if we check for target_id
                 is_new_message = (message.id > sent_msg.id)
                 
-                if is_new_message and is_not_self_message and (target_id is None or is_from_target_bot):
-                    
-                    print(f"   ✅ [{target_bot}] Reply received.")
-                    raw_text = message.text or "📷 File Received"
-                    if target_bot == "@CYBERINFOXXXBOT":
-                        marker = "📞Telephone:"
-                        if marker in raw_text:
-                            return raw_text[raw_text.find(marker):]
-                    return raw_text
+                # Check 1: Is it a new message?
+                if is_new_message:
+                    # Check 2: Is it from the target bot (if we could resolve the ID)?
+                    # If target_id is None, we rely only on it being new and the last message.
+                    if target_id is None or is_from_target_bot:
+                        print(f"   ✅ [{target_bot}] Reply received.")
+                        raw_text = message.text or "📷 File Received"
+                        if target_bot == "@CYBERINFOXXXBOT":
+                            marker = "📞Telephone:"
+                            if marker in raw_text:
+                                return raw_text[raw_text.find(marker):]
+                        return raw_text
         return f"⚠️ {target_bot} Slow/No Reply."
     except Exception as e:
         print(f"   ❌ [{target_bot}] Error: {e}")
@@ -114,14 +126,20 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                         if button_clicked: break
                 
                 if not button_clicked and hasattr(message.reply_markup, 'inline_keyboard'):
+                    from pyrogram.raw.functions.messages import GetBotCallbackAnswer
+                    from pyrogram.raw.types import DataJSON
+                    
                     for row in message.reply_markup.inline_keyboard:
                         for btn in row:
                             if "Start Bombing" in btn.text or btn.text.startswith("💣B") or btn.text.startswith("💣 B"):
                                 print(f"      🔘 Clicking Inline: {btn.text}")
-                                await app_client.request_callback_answer(
-                                    chat_id=message.chat.id,
-                                    message_id=message.id,
-                                    callback_data=btn.callback_data
+                                # Use the raw method to handle callback query more reliably
+                                await app_client.invoke(
+                                    GetBotCallbackAnswer(
+                                        peer=await app_client.resolve_peer(message.chat.id),
+                                        msg_id=message.id,
+                                        data=DataJSON(data=btn.callback_data)
+                                    )
                                 )
                                 button_clicked = True
                                 break
@@ -147,21 +165,22 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
 def check_instagram_logic():
     print("⏳ Waiting for messages on IG...")
     try:
-        threads = ig.direct_threads(amount=1)
+        # Fetching a larger amount to ensure we don't miss new threads
+        threads = ig.direct_threads(amount=5) 
         if not threads: return None
-        thread = threads[0]
         
-        if thread.messages[0].user_id == ig.user_id: 
-            print("   ✋ Last message Bot ka tha. Ignoring.")
-            return None
-        
+        # Iterate through threads to find the newest unread message
         target_msg = None
-        for msg in thread.messages[:5]:
-            if msg.user_id == ig.user_id: continue 
-            if msg.item_type != 'text': continue 
-            if msg.id in PROCESSED_IDS: break 
-            target_msg = msg
-            break 
+        for thread in threads:
+            for msg in thread.messages:
+                if msg.user_id == ig.user_id: continue # Ignore bot's own messages
+                if msg.item_type != 'text': continue # Only process text messages
+                if msg.id in PROCESSED_IDS: continue # Ignore already processed messages
+
+                # Found the newest, unprocessed text message
+                target_msg = msg
+                break # Stop searching in this thread
+            if target_msg: break # Stop searching in all threads
         
         if not target_msg: 
             print("   💤 No new unread messages found.")
@@ -199,17 +218,19 @@ def check_instagram_logic():
         return "COOL_DOWN"
     except Exception as e:
         print(f"⚠️ Error in IG check: {e}")
-        return None
+        # Return None or raise an exception based on desired behavior
+        return None 
 
 # === MAIN BOT LOOP ===
 async def main():
     if not IG_SESSION_ID_HARDCODE:
-        print("❌ Instagram Session Hardcode Missing!")
+        print("❌ Instagram Session Hardcode Missing! Please set INSTA_SESSION_ID.")
         return
 
     # 1. Instagram Login
     print("🔵 Logging in Instagram...")
     try:
+        # The patch_instagrapi() call above should fix the 'data' error here.
         ig.login_by_sessionid(IG_SESSION_ID_HARDCODE)
         print("✅ Instagram Login Success!")
     except Exception as e:
@@ -220,18 +241,29 @@ async def main():
     print("🔵 Logging in Telegram...")
     try:
         await app.start()
+        # Set self-user info after login is successful
+        try:
+            me = await app.get_me()
+            app.me = me
+        except Exception:
+            pass # Ignore if get_me fails after start
         print("✅ Telegram Login Success!")
     except Exception as e:
         print(f"❌ Telegram Fail: {e}")
         return
     
+    # Initialize PROCESSED_IDS on startup to avoid re-processing old messages
     try:
-        threads = ig.direct_threads(amount=3)
+        threads = ig.direct_threads(amount=10) # Check more threads on startup
         if threads:
             for thread in threads:
-                if thread.messages: PROCESSED_IDS.add(thread.messages[0].id)
+                if thread.messages: 
+                    # Add the IDs of the last 5 messages in each thread as 'old'
+                    for msg in thread.messages[:5]:
+                        PROCESSED_IDS.add(msg.id)
         print(f"   [System] Ignored {len(PROCESSED_IDS)} old messages on startup.")
-    except: pass
+    except Exception as e:
+        print(f"   [System] Warning: Could not initialize PROCESSED_IDS. Error: {e}")
     
     print("✅ All Systems Online & Ready!")
 
@@ -249,12 +281,13 @@ async def main():
                 if data['mode'] == "ACTION":
                     print("--- ⚙️ MODE: ACTION (!b) ---")
                     
+                    # Ensure the user_id is passed as a list, as direct_send expects it
                     ig.direct_send("💀 Bombing started on 3 bots...", user_ids=[data['user_id']])
                     
                     # ACTION on all 3 bots
                     for bot_username in BOT_ACTION_LIST:
                         await trigger_action_bot(app, bot_username, data['phone'])
-                        await asyncio.sleep(1) 
+                        await asyncio.sleep(random.randint(2, 4)) # Added slight random delay
                     
                     print("<<< 📤 Sending on IG: Bombing initiated.")
                     print("--- ✅ ACTION CYCLE COMPLETE ---")
@@ -268,25 +301,40 @@ async def main():
                     for bot_username in BOT_INFO_LIST:
                         info_result = await get_info_from_bot(app, bot_username, data['phone'])
                         info_parts.append(f"🤖 **Info from {bot_username}:**\n{info_result}")
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(random.randint(2, 4)) # Added slight random delay
                     
                     final_reply = "\n\n➖➖➖➖➖➖➖\n\n".join(info_parts)
                     
                     try:
+                        # Ensure the user_id is passed as a list
                         ig.direct_send(final_reply, user_ids=[data['user_id']])
                         print("<<< 📤 Sending on IG: Combined Info.")
                         print("--- ✅ INFO CYCLE COMPLETE ---")
-                    except: pass
+                    except Exception as e:
+                        print(f"⚠️ Failed to send IG reply: {e}")
 
             print(f"💤 Waiting 15s...", end="\r")
             await asyncio.sleep(15)
 
         except Exception as e:
-            print(f"\n⚠️ Critical Error: {e}")
+            print(f"\n⚠️ Critical Error in main loop: {e}")
             await asyncio.sleep(15)
+        except asyncio.CancelledError:
+            print("Loop cancelled. Shutting down...")
+            break
+        finally:
+            if app.is_connected:
+                await app.stop()
+
 
 if __name__ == "__main__":
+    print("--- Starting Program ---")
     try:
-        asyncio.run(main())
+        # Wrap the whole execution to ensure clean shutdown
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print("\n👋 Program interrupted by user.")
     except Exception as e:
         print(f"☠️ Program Crashed: {e}")
+
