@@ -8,6 +8,7 @@ from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
 # === LOGGING SETUP ===
+# INFO level par rakha gaya hai taaki logs clear rahein
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%H:%M:%S')
@@ -39,12 +40,12 @@ patch_instagrapi()
 logger.info("💀 Starting FINAL MASTER BOT (Pyrogram 1.x Compatible)...")
 
 # === CLIENT INITIALIZATION (CRITICAL SYNTAX FIX) ===
-# Pyrogram 1.x mein 'session_string' keyword nahi hota. Session string ko pehla argument banate hain.
+# Pyrogram 1.x mein, session string ko pehla argument banaya jaata hai.
 app = Client(
-    TG_SESSION_HARDCODE,  # Session string ko pehla argument banaya
+    TG_SESSION_HARDCODE,  # Session string/name ko pehla argument banaya
     api_id=API_ID, 
-    api_hash=API_HASH, 
-    in_memory=True
+    api_hash=API_HASH 
+    # 'in_memory=True' aur 'session_string=' keywords hata diye gaye
 )
 
 ig = InstaClient()
@@ -70,7 +71,6 @@ async def get_info_from_bot(app_client, target_bot, query):
     clean_query_number = "".join(filter(str.isdigit, query))[-10:]
     
     try:
-        # Use app_client.send_message
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
         logger.debug(f"   ⏳ [{target_bot}] Waiting for reply (Sent ID: {sent_msg.id})...")
@@ -84,7 +84,6 @@ async def get_info_from_bot(app_client, target_bot, query):
         for i in range(10): 
             await asyncio.sleep(1) 
             
-            # Use app_client.get_chat_history
             async for message in app_client.get_chat_history(target_bot, limit=1): 
                 
                 is_new_message = (message.id > sent_msg.id)
@@ -120,7 +119,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     logger.debug(f"   💣 Triggering Action on {target_bot}...")
     try:
         sent_start = await app_client.send_message(target_bot, "/start")
-        logger.debug(f"      Sent /start. Waiting 5s for menu...")
         await asyncio.sleep(5) 
         
         button_clicked = False
@@ -143,7 +141,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                             btn_text_lower = btn.text.lower()
                             if "start bombing" in btn_text_lower or btn_text_lower.startswith("💣b") or btn_text_lower.startswith("💣 b"):
                                 logger.debug(f"      🔘 Clicking Inline Button: {btn.text}")
-                                # In Pyrogram 1.x, request_callback_answer might need careful handling, but this syntax is correct for both.
                                 await app_client.request_callback_answer(
                                     chat_id=message.chat.id,
                                     message_id=message.id,
