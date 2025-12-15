@@ -11,16 +11,16 @@ from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%H:%M:%S')
-logger = logging.getLogger(__name__)  # <--- logger is now defined here
+logger = logging.getLogger(__name__)
 # ===================================
 
 # === CONFIGURATION ===
 API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
-# === 🔥 HARDCODED SESSIONS 🔥 ===
-TG_SESSION_HARDCODE = "BQIjrHsAAQ3dNrZmEuDaxpQW38fAt4vKFceM6zD7LH7ardO1XqX60cRbcFQVTjqfmdbnULLMaaCK1V_1__clCKa1tPPJQ4p2RhJouipUFuHwyzqfNKVYGylpyUXoiC3Sr8P5Yv8gGPKSgirzXvo_vctWzKAVYcL-GKis4ArsUNgKmO8DLYeImwHlj0s3s1NmGCGfT4hsFK2tGyyDoHTL2bh9XmsGFLOzNlIwHrWJ3lk7ts73gougN7syxxfclw0Aduf7Dx7pF5gw226Kk4C2ReOIPxndJJWkFNoPcmYuG4KyHM106_PGHVu48FbhqPCXit5Shbi4gqL3jCdgaTDpL6Hl60DqNgAAAAHfi28uAA"
-IG_SESSION_ID_HARDCODE = "79571086246%3AeuyWvK0olWrlKS%3A16%3AAYhk_bxwsgEHbgZYjOMTftKo0jU_zRtMGVfrmKtJVw" 
+# === 🔥 HARDCODED SESSIONS (LATEST WORKING STRINGS) 🔥 ===
+TG_SESSION_HARDCODE = "BQIjrHsAAQ3dNrZmEuDaxpQW38fAt4vKFceM6zD7LH7ardO1XqX60cRbcFQVTjqfmdbnULLMaaCK1V_1__clCKa1tPPJQ4p0RhJouipUFuHwyzqfNKVYGylpyUXoiC3Sr8P5Yv8gGPKSgirzXvo_vctWzKAVYcL-GKis4ArsUNgKmO8DLYeImwHlj0s3s1NmGCGfT4hsFK2tGyyDoHTL2bh9XmsGFLOzNlIwHrWJ3lk7ts73gougN7syxxfclw0Aduf7Dx7pF5gw226Kk4C2ReOIPxndJJWkFNoPcmYuG4KyHM106_PGHVu48FbhqPCXit5Shbi4gqL3jCdgaTDpL6Hl60DqNgAAAAHfi28uAA"
+IG_SESSION_ID_HARDCODE = "77623702389%3AIbWgF4uQKlPMhA%3A28%3AAYjxuoyw8BvmCIT5XdNhbx-CbYBhQn6HKplMZ5dfPQ" 
 # =================================
 
 # 👇 BOT GROUPS
@@ -48,6 +48,7 @@ app = Client(
 )
 
 ig = InstaClient()
+# Device Masking (Simple Android)
 ig.set_device({
     "app_version": "269.0.0.18.75",
     "android_version": 29,
@@ -55,16 +56,16 @@ ig.set_device({
     "dpi": "480dpi",
     "resolution": "1080x2340",
     "manufacturer": "Samsung",
-    "device": "SM-S918B",
-    "model": "Galaxy S23 Ultra",
-    "cpu": "exynos990",
+    "device": "SM-J600F", 
+    "model": "Galaxy J6",
+    "cpu": "universal7870",
     "version_code": "314665256"
 })
 
 PROCESSED_IDS = set()
 
 # ==========================================================
-# === 4. HELPER FUNCTIONS (DEFINITIONS START HERE) ===
+# === HELPER FUNCTIONS (DEFINITIONS) ===
 # ==========================================================
 
 # === HELPER 1: INFO BOT (ULTIMATE SPAM FIX V3) ===
@@ -235,7 +236,7 @@ def check_instagram_logic():
 
 
 # ==========================================================
-# === 5. MAIN EXECUTION LOOP ===
+# === MAIN EXECUTION LOOP ===
 # ==========================================================
 async def main():
     if not IG_SESSION_ID_HARDCODE:
@@ -280,7 +281,6 @@ async def main():
 
     while True:
         try:
-            # check_instagram_logic is now defined above, so it will work.
             data = await asyncio.to_thread(check_instagram_logic)
             
             if data == "COOL_DOWN":
@@ -320,8 +320,10 @@ async def main():
                         logger.info("--- ✅ INFO CYCLE COMPLETE ---")
                     except: pass
 
-            logger.debug(f"💤 Waiting 15s...", end="\r")
-            await asyncio.sleep(15)
+            # === OPTIMIZED SLEEP TIME (30-45 seconds) ===
+            sleep_time = random.randint(30, 45)
+            logger.debug(f"💤 Waiting {sleep_time}s to avoid ban...", end="\r")
+            await asyncio.sleep(sleep_time)
 
         except Exception as e:
             logger.critical(f"\n⚠️ Critical Error in Main Loop: {e}")
