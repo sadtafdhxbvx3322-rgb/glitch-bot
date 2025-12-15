@@ -1,37 +1,26 @@
 import os
 import asyncio
 import random
-import json
 from pyrogram import Client
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
-from flask import Flask
-from threading import Thread
 
 # === CONFIGURATION ===
 API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
-TG_SESSION = os.environ.get("TG_SESSION")
-IG_SESSION_ID = os.environ.get("IG_SESSION_ID")
-IG_SETTINGS_JSON = os.environ.get("IG_SETTINGS") 
+# === 🔥 HARDCODED SESSIONS (Provided by User) 🔥 ===
+# NOTE: Railway par bhi tum ise Secrets mein daal sakte ho, par abhi hardcode rakho.
+TG_SESSION_HARDCODE = "BQHm4_0Ae4rPe42j9ql0j8mEsmHWUovyr4Ezp3v--IEGSB2H-LXd5jMQcye2UPDFIRtHj4g8fn9mK3DPTGxlke5ioHYxvWNbwSO5d-jw9wu5lebh3JffA6Cy4Lq-H5A5sGw_mtKgsVr-e7wJkpfTJrJ5CcoTIS8xtjG4h5XnRkPMmhzBnmIObbR5_gZtUsZP4RLukw7-hUHaXT_Dx1tcWhKABe8rdZusau1XobP4ef0uHL3bfkiCR4tka8-VfkxYtO-ViSgvHB3Sd5io1XprsKye2afe3h-esm7D749vhC4dc6J7yk-3e1JLv1JzdRl4RItEN1IzEdg36w5HK9ffTlTDGd4nqQAAAAHylqcSAA"
+IG_SESSION_ID_HARDCODE = "1904077537%3ACwsjF0H1m75TBF%3A7%3AAYg6T-U_5_nZ4c8NXnwRfOLRyWzE4g6WJVpCY_BAaw" 
+# =======================================================
 
 # 👇 BOT SETUP
 BOT_INFO_1 = "@CYBERINFOXXXBOT"  
 BOT_INFO_2 = "@TrueCalleRobot"     
 BOT_ACTION = "@Lucixarp_bot"       
-INSTA_DEBUG_USER = "@khooshzzz" # Debug message bhejne ke liye user
+INSTA_DEBUG_USER = "@khooshzzz"
 # =====================
-
-# === WEB SERVER FOR UPTIMER (FLASK) ===
-app_web = Flask(__name__)
-@app_web.route('/')
-def home():
-    return "Bot is Running on Render!"
-
-def run_web():
-    port = int(os.environ.get("PORT", 8080))
-    app_web.run(host='0.0.0.0', port=port)
 
 def patch_instagrapi():
     try:
@@ -41,13 +30,18 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL RENDER-OPTIMIZED BOT...")
-patch_instagrapi()
+print("💀 Starting RAILWAY OPTIMIZED BOT...")
 
-# === GLOBAL CLIENTS ===
+# === CLIENT INITIALIZATION ===
+app = Client(
+    "railway_bot_client", 
+    api_id=API_ID, 
+    api_hash=API_HASH, 
+    session_string=TG_SESSION_HARDCODE, 
+    in_memory=True
+)
+
 ig = InstaClient()
-PROCESSED_IDS = set()
-
 # Device Masking
 ig.set_device({
     "app_version": "269.0.0.18.75",
@@ -62,7 +56,10 @@ ig.set_device({
     "version_code": "314665256"
 })
 
-# === HELPER 1: INFO BOT ===
+PROCESSED_IDS = set()
+
+# === HELPER FUNCTIONS (Same Debugging Logic) ===
+
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
     try:
@@ -86,20 +83,16 @@ async def get_info_from_bot(app_client, target_bot, query):
         print(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
-# === HELPER 2: ACTION BOT ===
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
     try:
-        # Step 1: Send /start
         sent_start = await app_client.send_message(target_bot, "/start")
         print(f"      Sent /start. Waiting for menu...")
         await asyncio.sleep(2) 
         
-        # Step 2: Click Button '💣B'
         button_clicked = False
         async for message in app_client.get_chat_history(target_bot, limit=1):
             if message.id > sent_start.id and message.reply_markup:
-                # Logic to find and click button... (same as before)
                 if hasattr(message.reply_markup, 'keyboard'):
                     for row in message.reply_markup.keyboard:
                         for btn in row:
@@ -128,12 +121,9 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
             print("      ❌ Button nahi mila '💣B' wala. Skipping number send.")
             return False
 
-        # Step 3: Send Number
         await asyncio.sleep(2)
         print(f"      🚀 Sending Target Number: {phone_10_digit}")
         await app_client.send_message(target_bot, phone_10_digit)
-        
-        # Wait for final action acknowledgment (optional, but good for stability)
         await asyncio.sleep(3) 
         
         print("      ✅ Action Triggered and Number Sent.")
@@ -143,7 +133,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         print(f"      ❌ Action Fail: {e}")
         return False
 
-# === INSTAGRAM LOGIC ===
 def check_instagram_logic():
     print("⏳ Waiting for messages on IG...")
     try:
@@ -202,9 +191,33 @@ def check_instagram_logic():
         print(f"⚠️ Error in IG check: {e}")
         return None
 
-# === CORE ASYNC BOT LOOP ===
-async def main_bot_loop(app):
-    # Ignore Old Messages on Startup
+# === MAIN BOT LOOP ===
+async def main():
+    if not IG_SESSION_ID_HARDCODE:
+        print("❌ Instagram Session Hardcode Missing!")
+        return
+
+    # 1. Instagram Login
+    print("🔵 Logging in Instagram...")
+    try:
+        ig.login_by_sessionid(IG_SESSION_ID_HARDCODE)
+        ig.direct_send("✅ Bot Live!", user_ids=[ig.user_id])
+        ig.direct_send("✅ Bot Live!", user_ids=[INSTA_DEBUG_USER])
+        print("✅ Instagram Login Success!")
+    except Exception as e:
+        print(f"❌ Instagram Fail: {e}")
+        return
+
+    # 2. Telegram Login
+    print("🔵 Logging in Telegram...")
+    try:
+        await app.start()
+        await app.send_message("me", "✅ **Telegram Login Successful!** Bot is now live.")
+        print("✅ Telegram Login Success!")
+    except Exception as e:
+        print(f"❌ Telegram Fail: {e}")
+        return
+
     try:
         threads = ig.direct_threads(amount=3)
         if threads:
@@ -213,9 +226,8 @@ async def main_bot_loop(app):
         print(f"   [System] Ignored {len(PROCESSED_IDS)} old messages on startup.")
     except: pass
     
-    print("✅ All Systems Online & Ready for Action!")
+    print("✅ All Systems Online & Ready!")
 
-    # MAIN LOOP
     while True:
         try:
             data = await asyncio.to_thread(check_instagram_logic)
@@ -227,26 +239,20 @@ async def main_bot_loop(app):
             
             if data and isinstance(data, dict):
                 
-                # MODE 1: ACTION (!b)
                 if data['mode'] == "ACTION":
                     print("--- ⚙️ MODE: ACTION (!b) ---")
                     await trigger_action_bot(app, BOT_ACTION, data['phone'])
-                    
                     try:
                         ig.direct_send("💀 started baby girl", user_ids=[data['user_id']])
                         print("<<< 📤 Sending on IG: 'started baby girl'")
                         print("--- ✅ ACTION CYCLE COMPLETE ---")
                     except: pass
 
-                # MODE 2: INFO (Normal)
                 elif data['mode'] == "INFO":
                     print("--- ⚙️ MODE: INFO (Normal Number) ---")
                     
-                    # Bot 1
                     info1 = await get_info_from_bot(app, BOT_INFO_1, data['phone'])
                     await asyncio.sleep(2)
-                    
-                    # Bot 2
                     info2 = await get_info_from_bot(app, BOT_INFO_2, data['phone'])
                     
                     final_reply = (
@@ -254,7 +260,6 @@ async def main_bot_loop(app):
                         f"➖➖➖➖➖➖➖\n\n"
                         f"🕵️ **TrueCaller:**\n{info2}"
                     )
-                    
                     try:
                         ig.direct_send(final_reply, user_ids=[data['user_id']])
                         print("<<< 📤 Sending on IG: Combined Info.")
@@ -268,64 +273,9 @@ async def main_bot_loop(app):
             print(f"\n⚠️ Critical Error: {e}")
             await asyncio.sleep(15)
 
-# === MAIN STARTUP FUNCTION (Handles Clients and Async Loop) ===
-async def setup_and_start_bot():
-    if not IG_SESSION_ID and not IG_SETTINGS_JSON:
-        print("❌ INSTAGRAM Secret Missing!")
-        return
-    if not TG_SESSION:
-        print("❌ TELEGRAM Secret Missing!")
-        return
-
-    # 1. Instagram Login (Debug 1)
-    print("🔵 Logging in Instagram...")
-    try:
-        if IG_SETTINGS_JSON:
-            ig_settings = json.loads(IG_SETTINGS_JSON)
-            ig.set_settings(ig_settings)
-            ig.login_by_sessionid(ig_settings.get('sessionid')) 
-        else:
-            ig.login_by_sessionid(IG_SESSION_ID)
-            
-        ig.direct_send("✅ Bot Live!", user_ids=[ig.user_id])
-        await ig.direct_send("✅ Bot Live!", user_ids=[INSTA_DEBUG_USER])
-        print(f"✅ Instagram Login Successful! Debug message sent to {INSTA_DEBUG_USER}")
-    except Exception as e:
-        print(f"❌ Instagram Login Fail: {e}")
-        return
-
-    # 2. Telegram Login (Debug 2)
-    print("🔵 Logging in Telegram...")
-    try:
-        app = Client(
-            "fresh_bot_client", 
-            api_id=API_ID, 
-            api_hash=API_HASH, 
-            session_string=TG_SESSION, 
-            in_memory=True
-        )
-        await app.start()
-        await app.send_message("me", "✅ **Telegram Login Successful!** Bot is now live.")
-        print("✅ Telegram Login Successful! Live message sent to Saved Messages.")
-    except Exception as e:
-        print(f"❌ Telegram Fail: {e} (This is a Session String error!)")
-        return
-    
-    # Start the main bot loop
-    await main_bot_loop(app)
-
-# === ENTRY POINT ===
-def start_bot_in_background():
-    # This runs the asynchronous bot setup in the background
-    asyncio.run(setup_and_start_bot())
-
 if __name__ == "__main__":
-    # 1. Start Flask web server in a separate thread for Uptimer/Render
-    t_web = Thread(target=run_web)
-    t_web.start()
-    print("🌐 Web server started (PORT 8080)")
-
-    # 2. Start the main bot logic in a separate thread
-    t_bot = Thread(target=start_bot_in_background)
-    t_bot.start()
-    print("🤖 Bot logic started in background thread.")
+    try:
+        # Railway worker process ko seedha is loop mein daal dega
+        asyncio.run(main()) 
+    except Exception as e:
+        print(f"☠️ Program Crashed: {e}")
