@@ -22,7 +22,7 @@ API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 # NOTE: Agar yeh string phir se 'unpack requires a buffer' error de, toh yeh string corrupt hai
 # aur use dobara generate karna hi padega (Pyrogram 2.0.x se).
 TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAYzADXvqbkwLtWGNGwg5BUZx7O7bilrZkvvXd-5ldp-HQntVaHF0-bVUSHeUKArMHeR4gSZaa8ljlF82oScCqABEH1ZstuL8UQbqOtI1sWoy8-JbRJK03y8DOquPqjDyJsjMRU1LKTwPwpWKTrweSGeOdASEjPQihMFIDJokr1giSHmRhKkYMz99cRfz-AjbHymGZiS5gl5q6Pdl0oB0yIHMci35E0rmFxYYD53Z-u5STM9oIFWEFs35BVMXSoMGNv5NkNQOS1W2GlTBMmdf-XijvWLioDHKjKn2jRthA="
-IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
+IG_SESSION_ID_HARDCODE = "78342326870%3AVVLrZpcWpSXlXN%3A20%3AAYjiEedYjjbaN06kwIhsfH5ejYHnWLOCJVh26Jp9rQ" 
 # =======================================================
 
 # 👇 BOT GROUPS
