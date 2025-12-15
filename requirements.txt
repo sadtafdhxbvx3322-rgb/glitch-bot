@@ -1,5 +1,4 @@
 pyrogram==2.0.100
 tgcrypto
 instagrapi==1.17.0
-python-dotenv
 Pillow
