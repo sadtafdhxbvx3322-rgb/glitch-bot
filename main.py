@@ -9,8 +9,7 @@ from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
-# === 🔥 HARDCODED SESSIONS (Provided by User) 🔥 ===
-# NOTE: Railway par bhi tum ise Secrets mein daal sakte ho, par abhi hardcode rakho.
+# === 🔥 HARDCODED SESSIONS 🔥 ===
 TG_SESSION_HARDCODE = "BQHm4_0Ae4rPe42j9ql0j8mEsmHWUovyr4Ezp3v--IEGSB2H-LXd5jMQcye2UPDFIRtHj4g8fn9mK3DPTGxlke5ioHYxvWNbwSO5d-jw9wu5lebh3JffA6Cy4Lq-H5A5sGw_mtKgsVr-e7wJkpfTJrJ5CcoTIS8xtjG4h5XnRkPMmhzBnmIObbR5_gZtUsZP4RLukw7-hUHaXT_Dx1tcWhKABe8rdZusau1XobP4ef0uHL3bfkiCR4tka8-VfkxYtO-ViSgvHB3Sd5io1XprsKye2afe3h-esm7D749vhC4dc6J7yk-3e1JLv1JzdRl4RItEN1IzEdg36w5HK9ffTlTDGd4nqQAAAAHylqcSAA"
 IG_SESSION_ID_HARDCODE = "1904077537%3ACwsjF0H1m75TBF%3A7%3AAYg6T-U_5_nZ4c8NXnwRfOLRyWzE4g6WJVpCY_BAaw" 
 # =======================================================
@@ -30,17 +29,9 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-print("💀 Starting RAILWAY OPTIMIZED BOT...")
+print("💀 Starting RAILWAY FINAL FIX BOT (Clean Separation)...")
 
-# === CLIENT INITIALIZATION ===
-app = Client(
-    "railway_bot_client", 
-    api_id=API_ID, 
-    api_hash=API_HASH, 
-    session_string=TG_SESSION_HARDCODE, 
-    in_memory=True
-)
-
+# === INSTAGRAM CLIENT (Global) ===
 ig = InstaClient()
 # Device Masking
 ig.set_device({
@@ -58,10 +49,11 @@ ig.set_device({
 
 PROCESSED_IDS = set()
 
-# === HELPER FUNCTIONS (Same Debugging Logic) ===
+# === TELEGRAM HELPERS (Need to be defined before main) ===
 
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
+    # ... (rest of the logic) ...
     try:
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
@@ -85,6 +77,7 @@ async def get_info_from_bot(app_client, target_bot, query):
 
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
+    # ... (rest of the logic) ...
     try:
         sent_start = await app_client.send_message(target_bot, "/start")
         print(f"      Sent /start. Waiting for menu...")
@@ -133,8 +126,10 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         print(f"      ❌ Action Fail: {e}")
         return False
 
+
 def check_instagram_logic():
     print("⏳ Waiting for messages on IG...")
+    # ... (rest of the logic) ...
     try:
         threads = ig.direct_threads(amount=1)
         if not threads: return None
@@ -191,31 +186,40 @@ def check_instagram_logic():
         print(f"⚠️ Error in IG check: {e}")
         return None
 
-# === MAIN BOT LOOP ===
+# === MAIN BOT LOOP (Telegram Client inside) ===
 async def main():
     if not IG_SESSION_ID_HARDCODE:
         print("❌ Instagram Session Hardcode Missing!")
         return
 
-    # 1. Instagram Login
+    # 1. Instagram Login (First Step)
     print("🔵 Logging in Instagram...")
     try:
         ig.login_by_sessionid(IG_SESSION_ID_HARDCODE)
         ig.direct_send("✅ Bot Live!", user_ids=[ig.user_id])
-        ig.direct_send("✅ Bot Live!", user_ids=[INSTA_DEBUG_USER])
         print("✅ Instagram Login Success!")
     except Exception as e:
-        print(f"❌ Instagram Fail: {e}")
+        # Agar yahan error aaya, toh IG session galat hai
+        print(f"❌ Instagram Fail: {e}. IG Session check karo!")
         return
 
-    # 2. Telegram Login
+    # 2. Telegram Client Initialization (After IG)
     print("🔵 Logging in Telegram...")
     try:
+        # Naya Client object yahan banaya
+        app = Client(
+            "railway_fix_client", 
+            api_id=API_ID, 
+            api_hash=API_HASH, 
+            session_string=TG_SESSION_HARDCODE, 
+            in_memory=True
+        )
         await app.start()
         await app.send_message("me", "✅ **Telegram Login Successful!** Bot is now live.")
         print("✅ Telegram Login Success!")
     except Exception as e:
-        print(f"❌ Telegram Fail: {e}")
+        # Agar yahan error aaya, toh TG session galat hai
+        print(f"❌ Telegram Fail: {e}. TG Session check karo!")
         return
 
     try:
@@ -242,6 +246,7 @@ async def main():
                 if data['mode'] == "ACTION":
                     print("--- ⚙️ MODE: ACTION (!b) ---")
                     await trigger_action_bot(app, BOT_ACTION, data['phone'])
+                    
                     try:
                         ig.direct_send("💀 started baby girl", user_ids=[data['user_id']])
                         print("<<< 📤 Sending on IG: 'started baby girl'")
@@ -275,7 +280,6 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        # Railway worker process ko seedha is loop mein daal dega
         asyncio.run(main()) 
     except Exception as e:
         print(f"☠️ Program Crashed: {e}")
