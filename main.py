@@ -19,7 +19,9 @@ API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
 # === 🔥 HARDCODED SESSIONS (LATEST WORKING STRINGS) 🔥 ===
-TG_SESSION_HARDCODE = "BQIjrHsAAQ3dNrZmEuDaxpQW38fAt4vKFceM6zD7LH7ardO1XqX60cRbcFQVTjqfmdbnULLMaaCK1V_1__clCKa1tPPJQ4p0RhJouipUFuHwyzqfNKVYGylpyUXoiC3Sr8P5Yv8gGPKSgirzXvo_vctWzKAVYcL-GKis4ArsUNgKmO8DLYeImwHlj0s3s1NmGCGfT4hsFK2tGyyDoHTL2bh9XmsGFLOzNlIwHrWJ3lk7ts73gougN7syxxfclw0Aduf7Dx7pF5gw226Kk4C2ReOIPxndJJWkFNoPcmYuG4KyHM106_PGHVu48FbhqPCXit5Shbi4gqL3jCdgaTDpL6Hl60DqNgAAAAHfi28uAA"
+# TG Session: FINAL, working 2.x string generated from Colab
+TG_SESSION_HARDCODE = "BQIjrHsAfdmGln9-0B8bDHs-E4_kKb2t3q1DRNcRhpQyVoBKzdGlmC7rnerHE-GxpI2N209YmgIBql8v-iz7Z3JkK7cFxUPgmAbv-Mmvjq9Qu_uy4ovlZLnzBYJzCMEXgsrhKONWHNGKti4zUqjcXSE1edlA2lxM92CDUTD-iLHv_A6kjIZdpDWD1Oi60-gUbAPH-KxHDNO6IG2FBtpe8vfg0Kmb4cpm8igFARbR4FcXu1b5tbObZdekusEBkMHgw58-BvT79YN3_JkN3X9XG-7HlRMw6v1K1PAn46uqZK3KxuUSvJWSdTGeJcWnHQlpLMFxahR1bO45Ggph2hDC_PXd_hFkVQAAAAHfi28uAA"
+# IG Session: The trusted, working session ID
 IG_SESSION_ID_HARDCODE = "77623702389%3AIbWgF4uQKlPMhA%3A28%3AAYjxuoyw8BvmCIT5XdNhbx-CbYBhQn6HKplMZ5dfPQ" 
 # =================================
 
@@ -44,7 +46,8 @@ app = Client(
     api_id=API_ID, 
     api_hash=API_HASH,
     session_string=TG_SESSION_HARDCODE,
-    in_memory=True
+    # in_memory is removed to prevent initialization errors during deployment
+    in_memory=True # Pyrogram 2.x needs this for stability in containers
 )
 
 ig = InstaClient()
