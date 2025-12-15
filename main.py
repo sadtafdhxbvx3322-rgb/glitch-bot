@@ -21,7 +21,7 @@ API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 # === 🔥 HARDCODED SESSIONS (LATEST STRING) 🔥 ===
 # NOTE: Agar yeh string phir se 'unpack requires a buffer' error de, toh yeh string corrupt hai
 # aur use dobara generate karna hi padega (Pyrogram 2.0.x se).
-TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAYzADXvqbkwLtWGNGwg5BUZx7O7bilrZkvvXd-5ldp-HQntVaHF0-bVUSHeUKArMHeR4gSZaa8ljlF82oScCqABEH1ZstuL8UQbqOtI1sWoy8-JbRJK03y8DOquPqjDyJsjMRU1LKTwPwpWKTrweSGeOdASEjPQihMFIDJokr1giSHmRhKkYMz99cRfz-AjbHymGZiS5gl5q6Pdl0oB0yIHMci35E0rmFxYYD53Z-u5STM9oIFWEFs35BVMXSoMGNv5NkNQOS1W2GlTBMmdf-XijvWLioDHKjKn2jRthA="
+TG_SESSION_HARDCODE = "BQHm4_0AYDAs-1G-FVDwXEr0Lj1BwYRJG3BLYrLKcwbcgSLaVcpfDYWwOHA1QajN2ynmq5TQswwYTtf7BGUTpDVvdd-mcl-LbUKwVwE7XOD80mShyCQBg_lMYqo87aLODvPrxaRtiLsC7YQk9EjYwxogc54eiDO2ezD2LeKjAxhIlBJ1IyXmywBa-0_LHMFWdBKJjoW6xKvjNRhwrn1jQSsIOOVarXOnIi4W-uBVz3XlSx6nbKnPiJJ2vJwXJptHqKovUJ1Io0B_pyDQZZDXbNksXUu1gHQBJoYjV3X_caJRPmM8e7OvXm-Yw94Pz5KUqrlW8u5-qEZuo_P2HOEImKmpNgYoigAAAAH7Nx6NAA"
 IG_SESSION_ID_HARDCODE = "78342326870%3AVVLrZpcWpSXlXN%3A20%3AAYjiEedYjjbaN06kwIhsfH5ejYHnWLOCJVh26Jp9rQ" 
 # =======================================================
 
