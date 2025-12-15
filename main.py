@@ -10,12 +10,13 @@ API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
 # === 🔥 HARDCODED SESSIONS (LATEST UPDATE) 🔥 ===
-TG_SESSION_HARDCODE = "BQHm4_0ARqB77CEwPmwkhj7xTIdiEHm2rQ7nby9egI2IY6tp6p-T3z3tpMqa9ZPQakGt7Y0EN0CbWMwK-fc5TH6NcU5xkgoCDnK3oIQVBpv8b_OLXVen7QOzu-ARa_I7oJ29K3aa3OhISSo0wuVoCYqbXY4l-7TxFiBgzJmoiqOTMG2g-h6BoS97zDlOXizbEHZBAgGXDS2W94qBVxpidXqnHqCKB9M0LZKa1Ffa0GUYjQuMIrKqgalNTRVSoY_4XmTs7o0RfHcq_WXY6uPbJDTSre124An9_Gauuwy-3umer9fbnY5mHW4XD4qITRs0Dgndu5Cc_INdn5OrY1Ic3leexmPD_gAAAAHylqcSAA"
+# Tumhari di gayi latest sessions.
+TG_SESSION_HARDCODE = "BQHm4_0AiFiPVzSfQDy48_ymJzQALgulIIZgFB27oq2T91lC6W4b65YecIL5qfhbB30fWUyUBaf_7L8ZLVYUSNhpVfPZv_rt0PiyCUkP9LIv29bUZDmJXBUGdsZKGqUCfoASYedgYFOiPnCYRJY3Lz1Zx_hxC_YGp1GBmYk2pekeMEA8Z8_FmMXX4h8D_HUTQpdObZLKKwlScfoVnmmIpcMr2zmCzg1VJ10wS7E8kpcyr5iVZu3I5oYbeg8CZo_eOCIDTUkg2h6lm2C2qYWER1RJF-xsuQlKuBURNbNCqf-vvXTB1jp8MyQZhIUZcrCXyCptlRXQBsRxLD6-ddFDrwghmmkwwwAAAAH7Nx6NAA"
 IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
 # =======================================================
 
-# 👇 BOT GROUPS
-BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"]
+# 👇 BOT GROUPS (REVERTED TO ORIGINAL BOTS)
+BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
 # === INITIALIZATION (Syntax Fixed) ===
@@ -27,11 +28,11 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL MASTER BOT (Ultimate Fixes)...")
+print("💀 Starting FINAL MASTER BOT (All Bots, Anti-Spam Active)...")
 
 # === CLIENT INITIALIZATION ===
 app = Client(
-    "railway_new_client", 
+    "railway_stable_client", 
     api_id=API_ID, 
     api_hash=API_HASH, 
     session_string=TG_SESSION_HARDCODE, 
@@ -58,7 +59,6 @@ PROCESSED_IDS = set()
 # === HELPER 1: INFO BOT (ULTIMATE SPAM FIX V3) ===
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
-    # Number ko 10-digit format mein clean karte hain, comparison ke liye
     clean_query_number = "".join(filter(str.isdigit, query))[-10:]
     
     try:
@@ -72,10 +72,9 @@ async def get_info_from_bot(app_client, target_bot, query):
         except Exception:
             target_id = None 
 
-        for i in range(10): # 10 seconds tak wait
+        for i in range(10): 
             await asyncio.sleep(1) 
             
-            # CRITICAL: Sirf last message check karo to prevent spam loop
             async for message in app_client.get_chat_history(target_bot, limit=1): 
                 
                 is_new_message = (message.id > sent_msg.id)
@@ -85,13 +84,15 @@ async def get_info_from_bot(app_client, target_bot, query):
                 # --- 🔥 CRITICAL CHECK: Content Validation (Number Match) 🔥 ---
                 is_content_relevant = False
                 if message.text:
+                    # Check 1: Agar query number reply ke text mein hai
                     if clean_query_number in message.text.replace(' ', '').replace('+', ''):
                          is_content_relevant = True
+                    # Check 2: Ya agar CYBERINFOXXXBOT ka specific marker hai
                     elif target_bot == "@CYBERINFOXXXBOT" and "📞Telephone:" in message.text:
                          is_content_relevant = True
 
                 # Final Filter: Agar sab conditions match ho toh hi reply uthao
-                if is_new_message and is_not_self_message and (target_id is None or is_from_target_bot) and is_content_relevant:
+                if is_new_message and is_not_self_message and is_content_relevant and (target_id is None or is_from_target_bot):
                     
                     print(f"   ✅ [{target_bot}] Reply received & Content Matched.")
                     raw_text = message.text or "📷 File Received"
@@ -108,14 +109,14 @@ async def get_info_from_bot(app_client, target_bot, query):
         print(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
-# === HELPER 2: ACTION BOT (TUMHARI EXACT PROCESS IMPLEMENTED) ===
+# === HELPER 2: ACTION BOT (3 Bots Working Logic) ===
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
     try:
         # Step 1: Send /start
         sent_start = await app_client.send_message(target_bot, "/start")
         print(f"      Sent /start. Waiting 5s for menu...")
-        await asyncio.sleep(5) # User requested 5 seconds wait
+        await asyncio.sleep(5) 
         
         # Step 2: Click Button 'Start Bombing' or '💣B'
         button_clicked = False
@@ -154,10 +155,10 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
             return False
 
         # Step 3: Send Number
-        await asyncio.sleep(2) # Wait 2 seconds after button click
+        await asyncio.sleep(2) 
         print(f"      🚀 Sending Target Number: {phone_10_digit}")
         await app_client.send_message(target_bot, phone_10_digit)
-        await asyncio.sleep(3) # Wait 3 seconds after sending number
+        await asyncio.sleep(3) 
         
         print("      ✅ Action Triggered and Number Sent.")
         return True
@@ -193,6 +194,14 @@ def check_instagram_logic():
         PROCESSED_IDS.add(target_msg.id)
         
         raw_text = target_msg.text.strip()
+        
+        # --- 🔥 FINAL SPAM FILTER FOR ERRORS/INFO LOOP 🔥 ---
+        # Bot ke khud ke forwarded messages (Error ya Info) ko naya input manne se roko
+        if raw_text.startswith("Error: Telegram says:") or raw_text.startswith("🤖 **Info from @"):
+            print(f"   ⚠️ Ignoring self-generated Error/Info loop content: {raw_text[:30]}...")
+            return None
+        # ----------------------------------------
+        
         clean_digits = "".join(filter(str.isdigit, raw_text))
         
         print(f"📩 Got message: '{raw_text}'")
@@ -248,7 +257,6 @@ async def main():
         print(f"❌ Telegram Fail: {e}")
         return
     
-    # Initialize processed IDs to avoid processing old messages
     try:
         threads = ig.direct_threads(amount=3)
         if threads:
@@ -288,7 +296,7 @@ async def main():
                     
                     info_parts = []
                     
-                    # INFO from all 2 bots
+                    # INFO from both original bots
                     for bot_username in BOT_INFO_LIST:
                         info_result = await get_info_from_bot(app, bot_username, data['phone'])
                         info_parts.append(f"🤖 **Info from {bot_username}:**\n{info_result}")
