@@ -7,10 +7,17 @@ from pyrogram.errors import AuthKeyInvalid, AuthKeyUnregistered
 from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
-# ... (LOGGING SETUP and other imports remain same) ...
+# === LOGGING SETUP (FIXED) ===
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger(__name__)  # <--- YEH LINE MISSING THI
+# ===================================
 
 # === CONFIGURATION ===
 API_ID = 35892347
+# ... (Rest of the code remains the same)
+
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
 # === 🔥 HARDCODED SESSIONS (LATEST WORKING STRINGS) 🔥 ===
