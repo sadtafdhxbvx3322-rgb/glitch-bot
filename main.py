@@ -9,9 +9,9 @@ from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
-# === 🔥 HARDCODED SESSIONS (Updated) 🔥 ===
-# NOTE: TG Session wohi purana, verified, hardcode wala hai.
-TG_SESSION_HARDCODE = "BQHm4_0Ae4rPe42j9ql0j8mEsmHWUovyr4Ezp3v--IEGSB2H-LXd5jMQcye2UPDFIRtHj4g8fn9mK3DPTGxlke5ioHYxvWNbwSO5d-jw9wu5lebh3JffA6Cy4Lq-H5A5sGw_mtKgsVr-e7wJkpfTJrJ5CcoTIS8xtjG4h5XnRkPMmhzBnmIObbR5_gZtUsZP4RLukw7-hUHaXT_Dx1tcWhKABe8rdZusau1XobP4ef0uHL3bfkiCR4tka8-VfkxYtO-ViSgvHB3Sd5io1XprsKye2afe3h-esm7D749vhC4dc6J7yk-3e1JLv1JzdRl4RItEN1IzEdg36w5HK9ffTlTDGd4nqQAAAAHylqcSAA"
+# === 🔥 HARDCODED SESSIONS 🔥 ===
+# Agar ye TG session Railway par chal gaya tha, toh ise hi use karo.
+TG_SESSION_HARDCODE = "BQHm4_0Ae0v9hu6NEuivgwAZMUYbaoawmR0NMy8pieT5kJrrv1aNN6uS603F4Fbp8IhWMUS7KkQzUE9xNHZRh_V9mBV2hqVOLdZ6yH3mvxMhlKNFXz7pypiop0hvIl9WAVb314FOm42TEmOONArXm8678PRpHTT5rErg8Br1mlKhv9E9DnMEnvnvUbtUx7JEnPF3NRAJ49aDip_LQ_2eCfU_Maba617c1pC2x_tgCRwhPjV-uKE_pdrV4ieF5rpFx95oA2LHA_pIuVke8gZ7wFACFN_gW3PXyWnCP9uXJ8EtyOgApr1PFQJUZyeAR4N-1rbvxtKHystUQneIapWGmQH6RoadjwAAAAHylqcSAA"
 IG_SESSION_ID_HARDCODE = "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R6v89yWhTFOZvaDtGbdCunwMw" 
 # =======================================================
 
@@ -28,11 +28,12 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL MASTER BOT (3 Action Bots + Fixes)...")
+print("💀 Starting RAILWAY FINAL FIX BOT (Spamming Fixed)...")
 
 # === CLIENT INITIALIZATION ===
+# Pyrogram client definition (bahar rakhte hain, jaisa ki pichle successful attempt mein tha)
 app = Client(
-    "replit_master_bot", 
+    "railway_fix_client", 
     api_id=API_ID, 
     api_hash=API_HASH, 
     session_string=TG_SESSION_HARDCODE, 
@@ -56,22 +57,31 @@ ig.set_device({
 
 PROCESSED_IDS = set()
 
-# === HELPER 1: INFO BOT ===
+# === HELPER 1: INFO BOT (FINAL SPAM FIX LOGIC) ===
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
     try:
         sent_msg = await app_client.send_message(target_bot, query)
         await asyncio.sleep(2)
-        
-        # --- 🔥 FIX: Check if the last message is from the BOT, not self-spam ---
-        # Note: Bot ke khudke messages ko ignore karne ka logic main loop mein bhi hai
-        # Par yahan bhi wait time zyada diya hai.
         print(f"   ⏳ [{target_bot}] Waiting for reply...")
         
+        # Target Bot ka ID nikalte hain (Zaroori for accurate check)
+        try:
+            target_user = await app_client.get_users(target_bot)
+            target_id = target_user.id
+        except Exception:
+            target_id = None 
+
         for i in range(8): 
             await asyncio.sleep(1) 
             async for message in app_client.get_chat_history(target_bot, limit=1):
-                if message.id > sent_msg.id and message.from_user.id != app_client.me.id:
+                # Critical Check: Message naya ho AND (woh target bot se aaya ho OR target ID na milne par self-ignore ho)
+                is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
+                is_not_self_message = (message.from_user.id != app_client.me.id)
+                is_new_message = (message.id > sent_msg.id)
+                
+                if is_new_message and is_not_self_message and (target_id is None or is_from_target_bot):
+                    
                     print(f"   ✅ [{target_bot}] Reply received.")
                     raw_text = message.text or "📷 File Received"
                     if target_bot == "@CYBERINFOXXXBOT":
@@ -84,21 +94,18 @@ async def get_info_from_bot(app_client, target_bot, query):
         print(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
-# === HELPER 2: ACTION BOT (Updated Logic) ===
+# === HELPER 2: ACTION BOT (Same Working Logic) ===
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
     try:
-        # Step 1: Send /start
         sent_start = await app_client.send_message(target_bot, "/start")
         print(f"      Sent /start. Waiting for menu...")
         await asyncio.sleep(3) 
         
-        # Step 2: Click Button 'Start Bombing' or '💣B'
         button_clicked = False
         async for message in app_client.get_chat_history(target_bot, limit=1):
             if message.id > sent_start.id and message.reply_markup:
                 
-                # Check Normal Keyboard
                 if hasattr(message.reply_markup, 'keyboard'):
                     for row in message.reply_markup.keyboard:
                         for btn in row:
@@ -109,7 +116,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
                                 break
                         if button_clicked: break
                 
-                # Check Inline Keyboard (Optional but safe)
                 if not button_clicked and hasattr(message.reply_markup, 'inline_keyboard'):
                     for row in message.reply_markup.inline_keyboard:
                         for btn in row:
@@ -128,7 +134,6 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
             print("      ❌ Action Button ('Start Bombing' or '💣B') nahi mila.")
             return False
 
-        # Step 3: Send Number
         await asyncio.sleep(2)
         print(f"      🚀 Sending Target Number: {phone_10_digit}")
         await app_client.send_message(target_bot, phone_10_digit)
@@ -141,7 +146,7 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         print(f"      ❌ Action Fail: {e}")
         return False
 
-# === INSTAGRAM LOGIC ===
+# === INSTAGRAM LOGIC (Same Working Logic) ===
 def check_instagram_logic():
     print("⏳ Waiting for messages on IG...")
     try:
@@ -208,7 +213,7 @@ async def main():
     # 1. Instagram Login
     print("🔵 Logging in Instagram...")
     try:
-        ig.login_by_sessionid(IG_SESSION_ID_HARDCODE) # HARDCODED IG SESSION
+        ig.login_by_sessionid(IG_SESSION_ID_HARDCODE)
         print("✅ Instagram Login Success!")
     except Exception as e:
         print(f"❌ Instagram Fail: {e}")
@@ -222,9 +227,6 @@ async def main():
     except Exception as e:
         print(f"❌ Telegram Fail: {e}")
         return
-        
-    # Get bot's own ID for self-spam check
-    bot_id = app.me.id
     
     try:
         threads = ig.direct_threads(amount=3)
@@ -255,7 +257,6 @@ async def main():
                     # ACTION on all 3 bots
                     for bot_username in BOT_ACTION_LIST:
                         await trigger_action_bot(app, bot_username, data['phone'])
-                        # Small delay between starting bots
                         await asyncio.sleep(1) 
                     
                     print("<<< 📤 Sending on IG: Bombing initiated.")
