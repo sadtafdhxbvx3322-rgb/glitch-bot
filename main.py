@@ -9,8 +9,7 @@ from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 API_ID = 31908861
 API_HASH = "db7b4118965e302e60cf66cc89570166"
 
-# === 🔥 HARDCODED SESSIONS 🔥 ===
-# Agar ye TG session Railway par chal gaya tha, toh ise hi use karo.
+# === 🔥 HARDCODED SESSIONS (LATEST UPDATE) 🔥 ===
 TG_SESSION_HARDCODE = "BQHm4_0Ae0v9hu6NEuivgwAZMUYbaoawmR0NMy8pieT5kJrrv1aNN6uS603F4Fbp8IhWMUS7KkQzUE9xNHZRh_V9mBV2hqVOLdZ6yH3mvxMhlKNFXz7pypiop0hvIl9WAVb314FOm42TEmOONArXm8678PRpHTT5rErg8Br1mlKhv9E9DnMEnvnvUbtUx7JEnPF3NRAJ49aDip_LQ_2eCfU_Maba617c1pC2x_tgCRwhPjV-uKE_pdrV4ieF5rpFx95oA2LHA_pIuVke8gZ7wFACFN_gW3PXyWnCP9uXJ8EtyOgApr1PFQJUZyeAR4N-1rbvxtKHystUQneIapWGmQH6RoadjwAAAAHylqcSAA"
 IG_SESSION_ID_HARDCODE = "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R6v89yWhTFOZvaDtGbdCunwMw" 
 # =======================================================
@@ -23,17 +22,16 @@ BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        User.model_config['extra'] = 'ignore'
+        User.model_config['extra'] = 'ignore']
     except Exception:
         pass
 patch_instagrapi()
 
-print("💀 Starting RAILWAY FINAL FIX BOT (Spamming Fixed)...")
+print("💀 Starting FINAL MASTER BOT (Latest TG Session)...")
 
 # === CLIENT INITIALIZATION ===
-# Pyrogram client definition (bahar rakhte hain, jaisa ki pichle successful attempt mein tha)
 app = Client(
-    "railway_fix_client", 
+    "replit_master_bot", 
     api_id=API_ID, 
     api_hash=API_HASH, 
     session_string=TG_SESSION_HARDCODE, 
@@ -75,7 +73,7 @@ async def get_info_from_bot(app_client, target_bot, query):
         for i in range(8): 
             await asyncio.sleep(1) 
             async for message in app_client.get_chat_history(target_bot, limit=1):
-                # Critical Check: Message naya ho AND (woh target bot se aaya ho OR target ID na milne par self-ignore ho)
+                # Critical Check: Spamming rokne ke liye
                 is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
                 is_not_self_message = (message.from_user.id != app_client.me.id)
                 is_new_message = (message.id > sent_msg.id)
@@ -146,7 +144,7 @@ async def trigger_action_bot(app_client, target_bot, phone_10_digit):
         print(f"      ❌ Action Fail: {e}")
         return False
 
-# === INSTAGRAM LOGIC (Same Working Logic) ===
+# === INSTAGRAM LOGIC ===
 def check_instagram_logic():
     print("⏳ Waiting for messages on IG...")
     try:
