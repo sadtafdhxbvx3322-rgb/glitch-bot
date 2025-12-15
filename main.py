@@ -8,7 +8,6 @@ from instagrapi import Client as InstaClient
 from instagrapi.exceptions import ClientError, PleaseWaitFewMinutes
 
 # === LOGGING SETUP ===
-# INFO level par rakha gaya hai taaki logs clear rahein
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%H:%M:%S')
@@ -19,16 +18,18 @@ logger = logging.getLogger(__name__)
 API_ID = 35892347
 API_HASH = "24f0ab191c17d8a58f0ac1d85d99d0f1"
 
-# === 🔥 HARDCODED SESSIONS (LATEST WORKING STRING) 🔥 ===
-TG_SESSION_HARDCODE = "BQIjrHsAPepLiXaaVQleL0u2iSwaNQh8DbnzD0y0g5pfsxMkOtVm_Jyvbz33cyHKwmCBQqRnWv8tWBBPRxZA2Wp_RdqAJE7XvQLnESfaLlHyOCj5EfxRdJ_P1kqPvVJzm4LUXtfl6_NOQSfdDzriKUaZrrk0XUAC6pKH-bcv4KxXOrzoBanVj_rKTKz0tU00-5hkFDhruDqovbU2-p5yiH2PA5XLB3c-5lP3h-hZfr58S2_FRyTxOUv1AW57YA5ViInn0D67yZ_RClNt6ajCrF7eya-hapq3_4jMNDDD1PI_knNjC-ORDj67Jm52OwLVPMvYM4mWtKTueQ-Ngp4vogynTgbJPgAAAAHfi28uAA"
-IG_SESSION_ID_HARDCODE = "75136570684%3AQkrd3jy9XrfXy0%3A20%3AAYgHk9d733Lcx0m_TaA9HEhqPiPxUH0imhfO09TlUA" 
+# === 🔥 HARDCODED SESSIONS (LATEST STRING) 🔥 ===
+# NOTE: Agar yeh string phir se 'unpack requires a buffer' error de, toh yeh string corrupt hai
+# aur use dobara generate karna hi padega (Pyrogram 2.0.x se).
+TG_SESSION_HARDCODE = "1BVtsOI0Bu6ihp5vZy7xwezfUeGWxsjxXVYN_6H4LA-SP1132JLTY2tAYzADXvqbkwLtWGNGwg5BUZx7O7bilrZkvvXd-5ldp-HQntVaHF0-bVUSHeUKArMHeR4gSZaa8ljlF82oScCqABEH1ZstuL8UQbqOtI1sWoy8-JbRJK03y8DOquPqjDyJsjMRU1LKTwPwpWKTrweSGeOdASEjPQihMFIDJokr1giSHmRhKkYMz99cRfz-AjbHymGZiS5gl5q6Pdl0oB0yIHMci35E0rmFxYYD53Z-u5STM9oIFWEFs35BVMXSoMGNv5NkNQOS1W2GlTBMmdf-XijvWLioDHKjKn2jRthA="
+IG_SESSION_ID_HARDCODE = "78342326870%3AghITMUcdf6avSx%3A16%3AAYg9qBkJNu73pupu8vWfEkA9YkAgxAxH4hD0G-IEMQ" 
 # =======================================================
 
 # 👇 BOT GROUPS
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"] 
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
-# === INITIALIZATION (Pyrogram 1.x Syntax Fix) ===
+# === INITIALIZATION ===
 def patch_instagrapi():
     try:
         from instagrapi.types import User
@@ -37,15 +38,16 @@ def patch_instagrapi():
         pass
 patch_instagrapi()
 
-logger.info("💀 Starting FINAL MASTER BOT (Pyrogram 1.x Compatible)...")
+logger.info("💀 Starting FINAL MASTER BOT (Pyrogram 2.x Compatible)...")
 
-# === CLIENT INITIALIZATION (CRITICAL SYNTAX FIX) ===
-# Pyrogram 1.x mein, session string ko pehla argument banaya jaata hai.
+# === CLIENT INITIALIZATION (PYROGRAM 2.x SYNTAX) ===
+# Pyrogram 2.x mein yeh arguments zaroori hain.
 app = Client(
-    TG_SESSION_HARDCODE,  # Session string/name ko pehla argument banaya
+    "railway_final_client", 
     api_id=API_ID, 
-    api_hash=API_HASH 
-    # 'in_memory=True' aur 'session_string=' keywords hata diye gaye
+    api_hash=API_HASH,
+    session_string=TG_SESSION_HARDCODE, # 'session_string=' keyword zaroori hai
+    in_memory=True                     # 'in_memory=' keyword zaroori hai
 )
 
 ig = InstaClient()
@@ -253,10 +255,10 @@ async def main():
         logger.info("✅ Telegram Login Success!")
     
     except AuthKeyInvalid:
-        logger.critical("❌ Telegram Login Failed: AUTH_KEY_INVALID (Session Expired).")
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_INVALID (Session Expired). Please regenerate your session.")
         return
     except AuthKeyUnregistered:
-        logger.critical("❌ Telegram Login Failed: AUTH_KEY_UNREGISTERED (Session Deleted).")
+        logger.critical("❌ Telegram Login Failed: AUTH_KEY_UNREGISTERED (Session Deleted). Please regenerate your session.")
         return
     except Exception as e:
         logger.critical(f"❌ Telegram Login Fail: Unhandled Error: {e}")
