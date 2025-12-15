@@ -18,16 +18,16 @@ IG_SESSION_ID_HARDCODE = "75136570684%3Af6PP2JHwpjctRF%3A22%3AAYhcx-naKgkUhqsz2R
 BOT_INFO_LIST = ["@CYBERINFOXXXBOT", "@TrueCalleRobot"]
 BOT_ACTION_LIST = ["@crazy_tools_bot", "@Lucixarp_bot", "@DadeisBack_bot"]
 
-# === INITIALIZATION ===
+# === INITIALIZATION (SYNTAX FIXED) ===
 def patch_instagrapi():
     try:
         from instagrapi.types import User
-        User.model_config['extra'] = 'ignore']
+        User.model_config['extra'] = 'ignore' # <- Yahan se extra ']' hata diya gaya hai
     except Exception:
         pass
 patch_instagrapi()
 
-print("💀 Starting FINAL MASTER BOT (Latest TG Session)...")
+print("💀 Starting FINAL MASTER BOT (Syntax Fixed)...")
 
 # === CLIENT INITIALIZATION ===
 app = Client(
@@ -55,7 +55,7 @@ ig.set_device({
 
 PROCESSED_IDS = set()
 
-# === HELPER 1: INFO BOT (FINAL SPAM FIX LOGIC) ===
+# === HELPER 1: INFO BOT (SPAM FIX) ===
 async def get_info_from_bot(app_client, target_bot, query):
     print(f"   ✈️ [{target_bot}] Sending Query: {query}")
     try:
@@ -63,7 +63,6 @@ async def get_info_from_bot(app_client, target_bot, query):
         await asyncio.sleep(2)
         print(f"   ⏳ [{target_bot}] Waiting for reply...")
         
-        # Target Bot ka ID nikalte hain (Zaroori for accurate check)
         try:
             target_user = await app_client.get_users(target_bot)
             target_id = target_user.id
@@ -73,7 +72,6 @@ async def get_info_from_bot(app_client, target_bot, query):
         for i in range(8): 
             await asyncio.sleep(1) 
             async for message in app_client.get_chat_history(target_bot, limit=1):
-                # Critical Check: Spamming rokne ke liye
                 is_from_target_bot = (target_id is not None and message.from_user.id == target_id)
                 is_not_self_message = (message.from_user.id != app_client.me.id)
                 is_new_message = (message.id > sent_msg.id)
@@ -92,7 +90,7 @@ async def get_info_from_bot(app_client, target_bot, query):
         print(f"   ❌ [{target_bot}] Error: {e}")
         return f"Error: {e}"
 
-# === HELPER 2: ACTION BOT (Same Working Logic) ===
+# === HELPER 2: ACTION BOT ===
 async def trigger_action_bot(app_client, target_bot, phone_10_digit):
     print(f"   💣 Triggering Action on {target_bot}...")
     try:
